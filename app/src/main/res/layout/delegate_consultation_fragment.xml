@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="5dp">
+
+    <TextView
+        android:id="@+id/heading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:textColor="#154750"
+        android:text="Consultation"
+        android:textSize="30dp"/>
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_centerInParent="true"
+        android:id="@+id/front_left_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/heading"
+        android:orientation="horizontal">
+
+    <ImageButton
+        android:layout_marginRight="25dp"
+        android:id="@+id/front_side"
+        android:background="@mipmap/front_side"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <ImageButton
+        android:layout_marginLeft="25dp"
+        android:id="@+id/left_side"
+        android:background="@mipmap/left_side"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_centerInParent="true"
+        android:layout_below="@+id/front_left_layout"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    <ImageButton
+        android:id="@+id/right_side"
+        android:layout_marginRight="25dp"
+        android:background="@mipmap/right_side"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <ImageButton
+        android:id="@+id/top_side"
+        android:layout_marginLeft="25dp"
+        android:background="@mipmap/top_side"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/back_side"
+        android:background="@mipmap/back_side"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/upload_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"/>
+
+
+    <Button
+        android:id="@+id/upload_button"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:background="#05262F"
+        android:text="Upload Images"
+        android:textColor="@android:color/white"/>
+
+</RelativeLayout>

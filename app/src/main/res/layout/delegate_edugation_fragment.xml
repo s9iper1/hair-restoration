@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/tv_heading"
+        android:text="Education"
+        android:textSize="30dp"
+        android:layout_gravity="center"
+        android:textColor="#154750"
+        android:layout_marginTop="25dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/offers"
+        android:textSize="20dp"
+        android:padding="10dp"
+        android:textColor="#000"
+        android:text="Travel Allowance Offers  "
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <ImageView
+        android:id="@+id/image"
+        android:src="@drawable/bald"
+        android:layout_below="@+id/offers"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"/>
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_marginLeft="15dp"
+        android:textColor="#000"
+        android:textSize="20dp"
+        android:text="Byteshaft is software services provider company"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:textSize="20dp"
+        android:text="10/8/2016"
+        android:textColor="#000"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="right"/>
+
+            <ImageView
+                android:id="@+id/education"
+                android:src="@drawable/education"
+                android:layout_below="@+id/offers"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"/>
+
+            <TextView
+                android:id="@+id/description1"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="1dp"
+                android:textColor="#000"
+                android:textSize="20dp"
+                android:text="Byteshaft is software services provider company"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:textSize="20dp"
+                android:text="10/8/2016"
+                android:textColor="#000"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingBottom="8dp"
+                android:layout_gravity="right"/>
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>
