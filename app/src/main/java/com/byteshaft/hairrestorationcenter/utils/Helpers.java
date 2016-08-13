@@ -1,5 +1,7 @@
 package com.byteshaft.hairrestorationcenter.utils;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 
 /**
@@ -16,5 +18,13 @@ public class Helpers {
         SharedPreferences preferences = AppGlobals.getPreferences();
         return preferences.getBoolean("CONFIG_KEY_FIRST_RUN", false);
 
+    }
+
+    public static ProgressDialog getProgressDialog(Activity activity) {
+        ProgressDialog progressDialog = new ProgressDialog(activity);
+        progressDialog.setMessage("Processing...");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setCancelable(false);
+        return progressDialog;
     }
 }

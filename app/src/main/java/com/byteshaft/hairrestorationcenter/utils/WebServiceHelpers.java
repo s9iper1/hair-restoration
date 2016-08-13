@@ -3,11 +3,9 @@ package com.byteshaft.hairrestorationcenter.utils;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.drawable.AnimationDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,7 +71,7 @@ public class WebServiceHelpers {
                                           String zipcode
     ) throws IOException, JSONException {
         StringBuilder builder = new StringBuilder();
-        builder.append(AppGlobals.registerUrl);
+        builder.append(AppGlobals.REGISTER_URL);
         builder.append(String.format("email=%s", email));
         builder.append(AND);
         builder.append(String.format("username=%s", username));
