@@ -3,7 +3,6 @@ package com.byteshaft.hairrestorationcenter.account;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.R;
-import com.byteshaft.hairrestorationcenter.fragments.EducationFragment;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 
@@ -35,7 +33,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.delegate_forgot_password_activity);
+        setContentView(R.layout.forgot_password_activity);
         mEmail = (EditText) findViewById(R.id.email_address);
         mRecoverButton = (Button) findViewById(R.id.recover);
         mRecoverButton.setOnClickListener(new View.OnClickListener() {

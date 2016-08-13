@@ -46,7 +46,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.delegate_register);
+        setContentView(R.layout.register);
         mUsername = (EditText) findViewById(R.id.user_name);
         mFirstName = (EditText) findViewById(R.id.first_name);
         mLastName = (EditText) findViewById(R.id.last_name);

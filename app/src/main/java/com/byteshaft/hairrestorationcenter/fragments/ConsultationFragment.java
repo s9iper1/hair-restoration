@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.byteshaft.hairrestorationcenter.HealthInformation;
-import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 
@@ -32,7 +31,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBaseView = inflater.inflate(R.layout.delegate_consultation_fragment, container, false);
+        mBaseView = inflater.inflate(R.layout.consultation_fragment, container, false);
         mFrontSide = (ImageButton) mBaseView.findViewById(R.id.front_side);
         mLetSide = (ImageButton) mBaseView.findViewById(R.id.left_side);
         mBackSide = (ImageButton) mBaseView.findViewById(R.id.back_side);

@@ -17,7 +17,7 @@ public class MessagesFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBaseView = inflater.inflate(R.layout.delegate_messages_frgament, container, false);
+        mBaseView = inflater.inflate(R.layout.messages_frgament, container, false);
         return mBaseView;
     }
 }
