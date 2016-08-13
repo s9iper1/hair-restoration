@@ -18,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.HealthInformation;
@@ -118,7 +117,11 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 }
                 break;
             case R.id.upload_button:
-                startActivity(new Intent(AppGlobals.getContext(), HealthInformation.class));
+                if (imagesHashMap.size() < 5) {
+                    Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
+                } else {
+                    startActivity(new Intent(AppGlobals.getContext(), HealthInformation.class));
+                }
         }
     }
 
@@ -218,7 +221,6 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
 
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                image.setBackground(null);
                 image.setImageBitmap(bitmap);
             }
 
