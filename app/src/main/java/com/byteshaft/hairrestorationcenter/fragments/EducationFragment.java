@@ -65,7 +65,6 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
                 try {
                     switch (httpURLConnection.getResponseCode()) {
                         case HttpURLConnection.HTTP_OK:
-                            Log.i("REs", mRequest.getResponseText());
                             sAdapter = new EducationAdapter(parseJson(mRequest.getResponseText()));
                             mRecyclerView.setAdapter(sAdapter);
                     }
@@ -82,7 +81,6 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         try {
             jsonObject = new JSONObject(data);
             if (jsonObject.getString("Message").equals("Successfully")) {
-                dataList.add(jsonObject.getJSONObject("details"));
                 dataList.add(jsonObject.getJSONObject("details"));
             } else {
                 AppGlobals.alertDialog(getActivity(), "Not Found", "Nothing found");
@@ -115,7 +113,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
             holder.setIsRecyclable(false);
             try {
                 mViewHolder.textViewOffers.setText(data.get(position).getString("title"));
-                Log.i("TAG","http:"+ data.get(position).getString("photo").replaceAll("\"", ""));
+                Log.i("Education","http:"+ data.get(position).getString("photo").replaceAll("\"", ""));
                 Picasso.with(getActivity())
                         .load("http:"+data.get(position).getString("photo").replaceAll("\"", ""))
                         .resize(900, 300)
