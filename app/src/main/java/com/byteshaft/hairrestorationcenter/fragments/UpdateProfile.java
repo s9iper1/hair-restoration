@@ -47,7 +47,7 @@ public class UpdateProfile extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBaseView = inflater.inflate(R.layout.delegate_update_profile, container, false);
+        mBaseView = inflater.inflate(R.layout.update_profile, container, false);
         mUsername = (EditText) mBaseView.findViewById(R.id.user_name);
         mFirstName = (EditText) mBaseView.findViewById(R.id.first_name);
         mLastName = (EditText) mBaseView.findViewById(R.id.last_name);

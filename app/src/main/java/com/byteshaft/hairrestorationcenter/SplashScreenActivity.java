@@ -13,7 +13,7 @@ public class SplashScreenActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.delegate_spalsh_screen);
+        setContentView(R.layout.spalsh_screen);
 
         new Handler().postDelayed(new Runnable(){
             @Override

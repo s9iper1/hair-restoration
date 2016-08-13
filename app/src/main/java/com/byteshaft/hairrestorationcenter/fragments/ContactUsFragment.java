@@ -17,7 +17,7 @@ public class ContactUsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBaseView = inflater.inflate(R.layout.delegate_contactus_fragment, container, false);
+        mBaseView = inflater.inflate(R.layout.contactus_fragment, container, false);
         return mBaseView;
     }
 }

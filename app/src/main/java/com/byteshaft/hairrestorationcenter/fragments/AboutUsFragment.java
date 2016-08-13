@@ -2,9 +2,6 @@ package com.byteshaft.hairrestorationcenter.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +20,7 @@ public class AboutUsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBaseView = inflater.inflate(R.layout.delegate_aboutus_fragment, container, false);
+        mBaseView = inflater.inflate(R.layout.aboutus_fragment, container, false);
         mAboutUsTextView = (TextView) mBaseView.findViewById(R.id.textview_about_us);
         mAboutUsTextView.setText("If you’re considering hair transplant surgery, this is no doubt one of the key questions on your mind. How much does a hair transplant cost? The answer is most likely a lot less than you think." +
                 "\n\n" +

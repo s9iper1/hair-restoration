@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.account.LoginActivity;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
@@ -41,7 +40,7 @@ public class ResetPassword extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBaseView = inflater.inflate(R.layout.delegate_reset_password, container, false);
+        mBaseView = inflater.inflate(R.layout.reset_password, container, false);
         mEmail = (EditText) mBaseView.findViewById(R.id.email_address);
         mOldPassword = (EditText) mBaseView.findViewById(R.id.old_password);
         mNewPassword = (EditText) mBaseView.findViewById(R.id.password);

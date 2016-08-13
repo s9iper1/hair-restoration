@@ -17,7 +17,7 @@ public class LocationFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBaseView = inflater.inflate(R.layout.delegate_location_fragment, container, false);
+        mBaseView = inflater.inflate(R.layout.location_fragment, container, false);
         return mBaseView;
     }
 }

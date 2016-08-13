@@ -17,7 +17,7 @@ public class EducationFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBaseView = inflater.inflate(R.layout.delegate_edugation_fragment, container, false);
+        mBaseView = inflater.inflate(R.layout.education_fragment, container, false);
         return mBaseView;
     }
 
