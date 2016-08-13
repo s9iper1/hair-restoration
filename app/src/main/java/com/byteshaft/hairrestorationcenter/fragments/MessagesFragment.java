@@ -8,9 +8,6 @@ import android.view.ViewGroup;
 
 import com.byteshaft.hairrestorationcenter.R;
 
-/**
- * Created by husnain on 8/6/16.
- */
 public class MessagesFragment extends Fragment {
 
     private View mBaseView;

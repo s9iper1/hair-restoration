@@ -8,9 +8,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 
-/**
- * Created by husnain on 8/8/16.
- */
 public class AppGlobals extends Application {
 
     private static Context sContext;

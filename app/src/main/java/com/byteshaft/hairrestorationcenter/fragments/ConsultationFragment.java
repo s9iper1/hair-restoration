@@ -14,9 +14,6 @@ import com.byteshaft.hairrestorationcenter.HealthInformation;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 
-/**
- * Created by husnain on 8/6/16.
- */
 public class ConsultationFragment extends Fragment implements View.OnClickListener {
 
     private View mBaseView;
@@ -25,7 +22,6 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     private ImageButton mTopSide;
     private ImageButton mLetSide;
     private ImageButton mRightSide;
-
     private Button mUploadButton;
     private Intent intent;
 
@@ -38,14 +34,12 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
         mTopSide = (ImageButton) mBaseView.findViewById(R.id.top_side);
         mRightSide = (ImageButton) mBaseView.findViewById(R.id.right_side);
         mUploadButton = (Button) mBaseView.findViewById(R.id.upload_button);
-
         mFrontSide.setOnClickListener(this);
         mRightSide.setOnClickListener(this);
         mTopSide.setOnClickListener(this);
         mBackSide.setOnClickListener(this);
         mLetSide.setOnClickListener(this);
         mUploadButton.setOnClickListener(this);
-
         intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         return mBaseView;
     }
@@ -57,15 +51,24 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 startActivityForResult(intent, 1);
                 break;
             case R.id.left_side:
+                startActivityForResult(intent, 2);
                 break;
             case R.id.right_side:
+                startActivityForResult(intent, 3);
                 break;
             case R.id.top_side:
+                startActivityForResult(intent, 4);
                 break;
             case R.id.back_side:
+                startActivityForResult(intent, 5);
                 break;
             case R.id.upload_button:
                 startActivity(new Intent(AppGlobals.getContext(), HealthInformation.class));
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

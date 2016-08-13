@@ -22,9 +22,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-/**
- * Created by husnain on 8/9/16.
- */
 public class UpdateProfile extends Fragment {
 
     private View mBaseView;

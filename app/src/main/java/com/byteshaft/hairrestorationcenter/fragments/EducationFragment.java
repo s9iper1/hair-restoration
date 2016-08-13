@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
-
 public class EducationFragment extends Fragment implements HttpRequest.OnReadyStateChangeListener {
 
     private View mBaseView;

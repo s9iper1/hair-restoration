@@ -9,9 +9,6 @@ import android.widget.TextView;
 
 import com.byteshaft.hairrestorationcenter.R;
 
-/**
- * Created by husnain on 8/6/16.
- */
 public class AboutUsFragment extends Fragment {
 
     private View mBaseView;

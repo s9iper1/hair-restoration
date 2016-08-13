@@ -4,9 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 
-/**
- * Created by s9iper1 on 8/11/16.
- */
 public class Helpers {
 
     public static void setIsLoggedIn(boolean loggedIn) {
