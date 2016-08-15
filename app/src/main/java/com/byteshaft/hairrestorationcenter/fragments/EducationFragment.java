@@ -73,7 +73,6 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
                     e.printStackTrace();
                 }
         }
-
     }
 
     private ArrayList<JSONObject> parseJson(String data) {
@@ -150,6 +149,4 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
 
         }
     }
-
-
 }
