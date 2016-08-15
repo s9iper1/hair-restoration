@@ -104,7 +104,6 @@ public class ContactUsFragment extends Fragment implements View.OnClickListener 
             super.onPreExecute();
             WebServiceHelpers.showProgressDialog(getActivity() , "Sending email \n please wait");
         }
-
         @Override
         protected String doInBackground(String... strings) {
             if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()){
