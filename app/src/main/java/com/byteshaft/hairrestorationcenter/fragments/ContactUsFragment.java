@@ -1,14 +1,25 @@
 package com.byteshaft.hairrestorationcenter.fragments;
 
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
+import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 public class ContactUsFragment extends Fragment implements View.OnClickListener {
 
@@ -40,7 +51,9 @@ public class ContactUsFragment extends Fragment implements View.OnClickListener 
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.submit_button:
-                validateEditText();
+                if (validateEditText()) {
+                    new ContactUsTask().execute();
+                }
         }
     }
 
@@ -80,5 +93,41 @@ public class ContactUsFragment extends Fragment implements View.OnClickListener 
             mDescriptionField.setError(null);
         }
         return valid;
+    }
+
+    private class ContactUsTask extends AsyncTask<String, String, String> {
+
+        private JSONObject jsonObject;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            WebServiceHelpers.showProgressDialog(getActivity() , "Sending email \n please wait");
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()){
+                try {
+                    jsonObject = WebServiceHelpers.contactUs(
+                            mName,
+                            mEmail,
+                            mSubject,
+                            mDescription);
+                    Log.e("TAG", String.valueOf(jsonObject));
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            WebServiceHelpers.dismissProgressDialog();
+            Toast.makeText(getActivity(), "Email sent", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(getActivity(), MainActivity.class));
+        }
     }
 }
