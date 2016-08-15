@@ -39,10 +39,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         if (!AppGlobals.isUserLoggedIn()) {
             startActivity(new Intent(AppGlobals.getContext(), LoginActivity.class));
         }
+        setContentView(R.layout.activity_main);
         loadFragment(new EducationFragment());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_logout) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-            alertDialogBuilder.setTitle("Alert");
+            alertDialogBuilder.setTitle("Confirmation");
             alertDialogBuilder.setMessage("Do you really want to logout?").setCancelable(false).setPositiveButton("Ok",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {

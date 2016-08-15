@@ -287,15 +287,19 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
         Log.i("TAG","response" +  i);
         switch (i) {
             case HttpRequest.STATE_DONE:
-                Log.i("TAG", mRequest.getResponseText());
+                Log.i("STATE_DONE", mRequest.getResponseText());
+                startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
                 break;
-        }
+            case HttpRequest.STATE_LOADING:
+                Log.i("STATE_LOADING", mRequest.getResponseText());
+                break;
 
+        }
     }
 
     @Override
     public void onFileUploadProgress(File file, long l, long l1) {
-        Log.i("TAG","file: " +file.getAbsolutePath()+ "uploaded: "+ l + "total: " + l1 );
+//        Log.i("TAG","file: " +file.getAbsolutePath()+ "uploaded: "+ l + "total: " + l1 );
 
     }
 }
