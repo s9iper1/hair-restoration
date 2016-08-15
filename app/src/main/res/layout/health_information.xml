@@ -12,14 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
     <LinearLayout
         android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:orientation="vertical">
-
 
         <TextView
             android:layout_width="wrap_content"
@@ -73,88 +71,10 @@
                 android:textSize="14sp" />
 
         </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="1dp"
-            android:text="please list any existing medical condition"
-            android:textColor="#F0F4F5"
-            android:textSize="15dp" />
-
-        <EditText
-            android:id="@+id/user_name"
+        <ListView
+            android:id="@+id/fields_list_view"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/edit_text_bg"
-            android:drawablePadding="9dp"
-            android:enabled="false"
-            android:padding="15dp"
-            android:singleLine="true"
-            android:textSize="14sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="1dp"
-            android:text="*Any family history of baldness or thinning hair."
-            android:textColor="#F0F4F5"
-            android:textSize="15dp" />
-
-        <EditText
-            android:id="@+id/first_name"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/edit_text_bg"
-            android:drawablePadding="9dp"
-            android:enabled="false"
-            android:padding="15dp"
-            android:singleLine="true"
-            android:textSize="14sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="1dp"
-            android:text="*Did baldness or tinning hair come about rather suddenly?(required)."
-            android:textColor="#F0F4F5"
-            android:textSize="15dp" />
-
-
-        <EditText
-            android:id="@+id/last_name"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/edit_text_bg"
-            android:drawablePadding="9dp"
-            android:enabled="false"
-            android:padding="15dp"
-            android:singleLine="true"
-            android:textSize="14sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="1dp"
-            android:text="*What is your time frame to proceed."
-            android:textColor="#F0F4F5"
-            android:textSize="15dp" />
-
-        <EditText
-            android:id="@+id/email"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/edit_text_bg"
-            android:drawablePadding="9dp"
-            android:enabled="false"
-            android:padding="15dp"
-            android:singleLine="true"
-            android:textSize="14sp" />
-
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
     <Button

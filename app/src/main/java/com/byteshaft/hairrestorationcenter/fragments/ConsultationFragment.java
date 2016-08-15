@@ -24,15 +24,19 @@ import com.byteshaft.hairrestorationcenter.HealthInformation;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
+import com.byteshaft.requests.FormData;
+import com.byteshaft.requests.HttpRequest;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.io.File;
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class ConsultationFragment extends Fragment implements View.OnClickListener {
+public class ConsultationFragment extends Fragment implements View.OnClickListener,
+        HttpRequest.OnReadyStateChangeListener, HttpRequest.FileUploadProgressListener {
 
     private View mBaseView;
     private CircularImageView mFrontSide;
@@ -47,6 +51,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     private HashMap<Integer, String> imagesHashMap;
     private final int[] requestCodes = {1, 2, 3, 4, 5};
     private int pressedButtonId;
+    private HttpRequest mRequest;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -117,11 +122,12 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 }
                 break;
             case R.id.upload_button:
-                if (imagesHashMap.size() < 5) {
-                    Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
-                } else {
-                    startActivity(new Intent(AppGlobals.getContext(), HealthInformation.class));
-                }
+//                if (imagesHashMap.size() < 5) {
+//                    Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    uploadImages();
+                    startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
+//                }
         }
     }
 
@@ -259,5 +265,37 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
             System.out.println(uriSavedImage);
             startActivityForResult(takePictureIntent, requestCode);
         }
+    }
+
+    private void uploadImages() {
+        FormData data = new FormData();
+        data.append(FormData.TYPE_CONTENT_TEXT, "user_id",
+                AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_USER_ID));
+        for (int i = 1; i < 6; i++) {
+            Log.i("TAG", "image"+i);
+            data.append(FormData.TYPE_CONTENT_FILE,"image"+i , imagesHashMap.get(i));
+        }
+        mRequest = new HttpRequest(getActivity().getApplicationContext());
+        mRequest.setOnReadyStateChangeListener(this);
+        mRequest.setOnFileUploadProgressListener(this);
+        mRequest.open("POST", AppGlobals.CONSULTATION_STEP_ONE);
+        mRequest.send(data);
+    }
+
+    @Override
+    public void onReadyStateChange(HttpURLConnection httpURLConnection, int i) {
+        Log.i("TAG","response" +  i);
+        switch (i) {
+            case HttpRequest.STATE_DONE:
+                Log.i("TAG", mRequest.getResponseText());
+                break;
+        }
+
+    }
+
+    @Override
+    public void onFileUploadProgress(File file, long l, long l1) {
+        Log.i("TAG","file: " +file.getAbsolutePath()+ "uploaded: "+ l + "total: " + l1 );
+
     }
 }

@@ -44,7 +44,7 @@ public class Helpers {
 
     public static String getTimeStamp() {
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h_mm_aa_dd_M_yyyy");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h_mm_ss_aa_dd_M_yyyy");
         simpleDateFormat.setTimeZone(TimeZone.getDefault());
         return simpleDateFormat.format(calendar.getTime());
     }

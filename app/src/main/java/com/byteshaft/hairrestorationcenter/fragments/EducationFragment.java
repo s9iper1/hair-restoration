@@ -46,6 +46,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
         mProgressDialog = Helpers.getProgressDialog(getActivity());
         getEducationData();
+        Log.i("KEY_USER_ID", AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_USER_ID));
         return mBaseView;
     }
 
