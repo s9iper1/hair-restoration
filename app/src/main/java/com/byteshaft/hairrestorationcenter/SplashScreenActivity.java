@@ -14,12 +14,13 @@ public class SplashScreenActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.spalsh_screen);
 
-        new Handler().postDelayed(new Runnable(){
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 /* Create an Intent that will start the Menu-Activity. */
                 Intent mainIntent = new Intent(SplashScreenActivity.this, MainActivity.class);
                 startActivity(mainIntent);
+                finish();
             }
         }, 2000);
     }

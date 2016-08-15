@@ -18,6 +18,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.HealthInformation;
@@ -30,8 +33,12 @@ import com.mikhaellopez.circularimageview.CircularImageView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -52,17 +59,27 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     private final int[] requestCodes = {1, 2, 3, 4, 5};
     private int pressedButtonId;
     private HttpRequest mRequest;
+    private ArrayList<String> uploaded;
+    private TextView uploadDetails;
+    private ProgressBar mProgressBar;
+    private FrameLayout progressLayout;
+    private TextView percentAge;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBaseView = inflater.inflate(R.layout.consultation_fragment, container, false);
         imagesHashMap = new HashMap<>();
+        uploaded = new ArrayList<>();
         mFrontSide = (CircularImageView) mBaseView.findViewById(R.id.front_side);
         mLeftSide = (CircularImageView) mBaseView.findViewById(R.id.left_side);
         mBackSide = (CircularImageView) mBaseView.findViewById(R.id.back_side);
         mTopSide = (CircularImageView) mBaseView.findViewById(R.id.top_side);
         mRightSide = (CircularImageView) mBaseView.findViewById(R.id.right_side);
         mUploadButton = (Button) mBaseView.findViewById(R.id.upload_button);
+        uploadDetails = (TextView) mBaseView.findViewById(R.id.file_number);
+        mProgressBar = (ProgressBar) mBaseView.findViewById(R.id.progressbar_Horizontal);
+        progressLayout = (FrameLayout) mBaseView.findViewById(R.id.progress_layout);
+        percentAge = (TextView) mBaseView.findViewById(R.id.percentage);
         mFrontSide.setOnClickListener(this);
         mRightSide.setOnClickListener(this);
         mTopSide.setOnClickListener(this);
@@ -88,7 +105,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
             case R.id.left_side:
                 if (imagesHashMap.containsKey(requestCodes[1])) {
                     pressedButtonId = 0;
-                    removeItemFromArray(requestCodes[0], mLeftSide);
+                    removeItemFromArray(requestCodes[1], mLeftSide);
                 } else {
                     pressedButtonId = view.getId();
                     dispatchTakePictureIntent(requestCodes[1]);
@@ -97,7 +114,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
             case R.id.right_side:
                 if (imagesHashMap.containsKey(requestCodes[2])) {
                     pressedButtonId = 0;
-                    removeItemFromArray(requestCodes[0], mRightSide);
+                    removeItemFromArray(requestCodes[2], mRightSide);
                 } else {
                     pressedButtonId = view.getId();
                     dispatchTakePictureIntent(requestCodes[2]);
@@ -106,7 +123,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
             case R.id.top_side:
                 if (imagesHashMap.containsKey(requestCodes[3])) {
                     pressedButtonId = 0;
-                    removeItemFromArray(requestCodes[0], mTopSide);
+                    removeItemFromArray(requestCodes[3], mTopSide);
                 } else {
                     pressedButtonId = view.getId();
                     dispatchTakePictureIntent(requestCodes[3]);
@@ -115,19 +132,18 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
             case R.id.back_side:
                 if (imagesHashMap.containsKey(requestCodes[4])) {
                     pressedButtonId = 0;
-                    removeItemFromArray(requestCodes[0], mBackSide);
+                    removeItemFromArray(requestCodes[4], mBackSide);
                 } else {
                     pressedButtonId = view.getId();
                     dispatchTakePictureIntent(requestCodes[4]);
                 }
                 break;
             case R.id.upload_button:
-//                if (imagesHashMap.size() < 5) {
-//                    Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
-//                } else {
-//                    uploadImages();
-                    startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
-//                }
+                if (imagesHashMap.size() < 5) {
+                    Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
+                } else {
+                    uploadImages();
+                }
         }
     }
 
@@ -223,7 +239,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     }
 
     private void setImage(final CircularImageView image, File file) {
-        Picasso.with(getActivity()).load(file).resize(200, 200).centerCrop().into(new Target(){
+        Picasso.with(getActivity()).load(file).resize(150, 150).centerCrop().into(new Target(){
 
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -280,26 +296,49 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
         mRequest.setOnFileUploadProgressListener(this);
         mRequest.open("POST", AppGlobals.CONSULTATION_STEP_ONE);
         mRequest.send(data);
+        progressLayout.setVisibility(View.VISIBLE);
+        mUploadButton.setVisibility(View.GONE);
     }
 
     @Override
     public void onReadyStateChange(HttpURLConnection httpURLConnection, int i) {
+        JSONObject jsonObject;
         Log.i("TAG","response" +  i);
         switch (i) {
             case HttpRequest.STATE_DONE:
-                Log.i("STATE_DONE", mRequest.getResponseText());
-                startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
+                progressLayout.setVisibility(View.GONE);
+                mUploadButton.setVisibility(View.VISIBLE);
+                Log.i("Consultation:STATE_DONE", mRequest.getResponseText());
+                try {
+                    jsonObject = new JSONObject(mRequest.getResponseText());
+                    if (jsonObject.getString("Message").equals("Successfully")) {
+                        JSONObject jsonDetails = jsonObject.getJSONObject("details");
+                        AppGlobals.sEntryId = jsonDetails.getInt("entry_id");
+                        startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 break;
-            case HttpRequest.STATE_LOADING:
-                Log.i("STATE_LOADING", mRequest.getResponseText());
-                break;
-
         }
     }
 
     @Override
     public void onFileUploadProgress(File file, long l, long l1) {
-//        Log.i("TAG","file: " +file.getAbsolutePath()+ "uploaded: "+ l + "total: " + l1 );
+        Log.i("TAG","file: " +file.getAbsolutePath()+ "uploaded: "+ l + "total: " + l1 );
+        if (!uploaded.contains(file.getAbsolutePath())) {
+            uploaded.add(file.getAbsolutePath());
+            mProgressBar.setProgress(0);
+        }
+        uploadDetails.setText(uploaded.size()+"/"+imagesHashMap.size());
+        double progress = (l/(double)l1)*100;
+        Log.i("current progress", "" + progress);
+        mProgressBar.setProgress((int) progress);
+        percentAge.setText((int)progress+"/100");
+
+
+
+
 
     }
 }

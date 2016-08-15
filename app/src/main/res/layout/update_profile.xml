@@ -18,10 +18,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="10dp"
                 android:text="Update Profile"
                 android:textColor="#F0F4F5"
-                android:textSize="30dp"/>
+                android:textSize="30sp"/>
 
             <EditText
                 android:id="@+id/user_name"
