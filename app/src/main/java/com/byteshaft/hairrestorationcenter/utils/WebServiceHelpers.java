@@ -58,6 +58,21 @@ public class WebServiceHelpers {
         return new JSONObject(response.toString());
     }
 
+    private static String readResponseForSendMessage(HttpURLConnection connection) throws IOException, JSONException {
+        InputStream is = connection.getInputStream();
+        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+        StringBuilder response = new StringBuilder();
+
+        String line;
+        while ((line = rd.readLine()) != null) {
+            response.append(line);
+            response.append('\r');
+        }
+
+        Log.i("TG", response.toString());
+        return response.toString();
+    }
+
     public static JSONObject registerUser(String firstname,
                                           String lastname,
                                           String email,
@@ -88,6 +103,34 @@ public class WebServiceHelpers {
         Log.i("LOG", data);
         HttpURLConnection connection = openConnectionForUrl(data, "POST");
         sendRequestData(connection, data);
+        AppGlobals.setResponseCode(connection.getResponseCode());
+        System.out.println(connection.getResponseCode());
+        return readResponse(connection);
+    }
+
+    public static String messageSend(String massage,
+                                          String userId) throws IOException, JSONException {
+        StringBuilder builder = new StringBuilder();
+        builder.append(AppGlobals.SEND_MESSAGE);
+        builder.append(String.format("massage=%s", massage));
+        builder.append(AND);
+        builder.append(String.format("user_id=%s", userId));
+        String data = builder.toString();
+        Log.i("LOG", data);
+        HttpURLConnection connection = openConnectionForUrl(data, "POST");
+        sendRequestData(connection, data);
+        AppGlobals.setResponseCode(connection.getResponseCode());
+        System.out.println(connection.getResponseCode());
+        return readResponseForSendMessage(connection);
+    }
+
+    public static JSONObject messageReceive(String userId) throws IOException, JSONException {
+        StringBuilder builder = new StringBuilder();
+        builder.append(AppGlobals.RECEIVE_MESSAGE);
+        builder.append(String.format("user_id=%s", userId));
+        String data = builder.toString();
+        Log.i("LOG", data);
+        HttpURLConnection connection = openConnectionForUrl(data, "GET");
         AppGlobals.setResponseCode(connection.getResponseCode());
         System.out.println(connection.getResponseCode());
         return readResponse(connection);
