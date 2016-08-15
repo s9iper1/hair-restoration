@@ -21,9 +21,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-/**
- * Created by husnain on 8/5/16.
- */
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText mEmail;

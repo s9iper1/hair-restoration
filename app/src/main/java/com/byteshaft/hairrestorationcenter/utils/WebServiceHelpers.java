@@ -93,6 +93,29 @@ public class WebServiceHelpers {
         return readResponse(connection);
     }
 
+
+    public static JSONObject contactUs(String name,
+                                 String email,
+                                 String subject,
+                                 String description
+    ) throws IOException, JSONException {
+        StringBuilder builder = new StringBuilder();
+        builder.append(AppGlobals.CONTACT_US_URL);
+        builder.append(String.format("name=%s", name));
+        builder.append(AND);
+        builder.append(String.format("email=%s", email));
+        builder.append(AND);
+        builder.append(String.format("subject=%s", subject));
+        builder.append(AND);
+        builder.append(String.format("details=%s", description));
+        String data = builder.toString();
+        HttpURLConnection connection = openConnectionForUrl(data, "POST");
+        sendRequestData(connection, data);
+        AppGlobals.setResponseCode(connection.getResponseCode());
+        System.out.println(connection.getResponseCode());
+        return  readResponse(connection);
+    }
+
     public static JSONObject logInUser(
             String email,
             String password
