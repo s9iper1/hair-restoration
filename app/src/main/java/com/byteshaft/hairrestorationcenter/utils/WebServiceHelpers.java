@@ -3,11 +3,9 @@ package com.byteshaft.hairrestorationcenter.utils;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.drawable.AnimationDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,9 +18,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Created by husnain on 8/8/16.
- */
 public class WebServiceHelpers {
 
     private static ProgressDialog progressDialog;
@@ -73,7 +68,7 @@ public class WebServiceHelpers {
                                           String zipcode
     ) throws IOException, JSONException {
         StringBuilder builder = new StringBuilder();
-        builder.append(AppGlobals.registerUrl);
+        builder.append(AppGlobals.REGISTER_URL);
         builder.append(String.format("email=%s", email));
         builder.append(AND);
         builder.append(String.format("username=%s", username));
@@ -103,7 +98,7 @@ public class WebServiceHelpers {
             String password
     ) throws IOException, JSONException {
         StringBuilder builder = new StringBuilder();
-        builder.append(AppGlobals.loginUrl);
+        builder.append(AppGlobals.LOGIN_URL);
         builder.append(String.format("user_name=%s", email));
         builder.append(AND);
         builder.append(String.format("password=%s", password));
@@ -118,7 +113,7 @@ public class WebServiceHelpers {
 
     public static JSONObject forgotPassword(String email) throws IOException, JSONException {
         StringBuilder builder = new StringBuilder();
-        builder.append(AppGlobals.forgotPasswordUrl);
+        builder.append(AppGlobals.FORGET_PASSWORD_URL);
         builder.append(String.format("email=%s", email));
         String data = builder.toString();
         Log.i("LOG", data);
@@ -131,7 +126,7 @@ public class WebServiceHelpers {
 
     public static JSONObject resetPassword(String email, String oldPassword, String newPassword) throws IOException, JSONException {
         StringBuilder builder = new StringBuilder();
-        builder.append(AppGlobals.resetPasswordUrl);
+        builder.append(AppGlobals.RESET_PASSWORD_URL);
         builder.append(String.format("email=%s", email));
         builder.append(AND);
         builder.append(String.format("oldpassword=%s", oldPassword));
@@ -155,7 +150,7 @@ public class WebServiceHelpers {
                                           String zipcode
     ) throws IOException, JSONException {
         StringBuilder builder = new StringBuilder();
-        builder.append(AppGlobals.updateProfileUrl);
+        builder.append(AppGlobals.UPDATE_PROFILE_URL);
         builder.append(String.format("email=%s", email));
         builder.append(AND);
         builder.append(String.format("username=%s", username));

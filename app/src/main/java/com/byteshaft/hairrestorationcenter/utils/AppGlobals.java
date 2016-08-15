@@ -8,19 +8,17 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 
-/**
- * Created by husnain on 8/8/16.
- */
 public class AppGlobals extends Application {
 
     private static Context sContext;
-
-    public static final String registerUrl = "http://dynobranding.com/client/hairapp/api/signup.php?";
-    public static final String loginUrl = "http://dynobranding.com/client/hairapp/api/signin.php?";
-    public static final String resetPasswordUrl = "http://dynobranding.com/client/hairapp/api/reset_password.php?";
-    public static final String forgotPasswordUrl = "http://dynobranding.com/client/hairapp/api/forgotpassword.php?";
-    public static final String updateProfileUrl = "http://dynobranding.com/client/hairapp/api/update_profile.php?";
-
+    private static final String BASE_URL = "http://dynobranding.com/client/hairapp/api/";
+    public static final String REGISTER_URL = String.format("%ssignup.php?", BASE_URL); // "http://dynobranding.com/client/hairapp/api/signup.php?";
+    public static final String LOGIN_URL =  String.format("%ssignin.php?", BASE_URL); //"http://dynobranding.com/client/hairapp/api/signin.php?";
+    public static final String RESET_PASSWORD_URL = String.format("%sreset_password.php?", BASE_URL); // "http://dynobranding.com/client/hairapp/api/reset_password.php?";
+    public static final String FORGET_PASSWORD_URL = String.format("%sforgotpassword.php?", BASE_URL);  //"http://dynobranding.com/client/hairapp/api/forgotpassword.php?";
+    public static final String UPDATE_PROFILE_URL = String.format("%supdate_profile.php?", BASE_URL); //"http://dynobranding.com/client/hairapp/api/update_profile.php?";
+    public static final String EDUCATION_URL = String.format("%seducation_list.php", BASE_URL);
+    public static final String CONSULTATION_STEP_ONE = String.format("%sconsultation_step1.php", BASE_URL);
     public static final String KEY_USER_TOKEN = "token";
     public static final String KEY_FIRSTNAME = "firstname";
     public static final String KEY_LASTNAME = "lastname";
@@ -35,6 +33,7 @@ public class AppGlobals extends Application {
     public static int readresponseCode = 0;
     public static final String KEY_USER_DETAILS = "user_details";
     private static SharedPreferences sPreferences;
+    public static final String QUESTION_LIST = String.format("%squeations_list.php", BASE_URL);
 
     @Override
     public void onCreate() {
