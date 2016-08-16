@@ -8,6 +8,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -39,6 +42,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBaseView = inflater.inflate(R.layout.fragment_education, container, false);
+        setHasOptionsMenu(true);
         mRecyclerView = (RecyclerView) mBaseView.findViewById(R.id.recycler_view_education);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(linearLayoutManager);
@@ -181,5 +185,19 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
                 AppGlobals.alertDialog(getActivity(), "No internet", "please check your internet connection");
             }
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.education_actionbar, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.education_actionbar:
+        }
+        return true;
     }
 }
