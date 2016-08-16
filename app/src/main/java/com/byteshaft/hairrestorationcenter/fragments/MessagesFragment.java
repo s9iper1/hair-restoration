@@ -81,6 +81,7 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
     class SendMessageTask extends AsyncTask<String, String, String> {
 
         private String string;
+        private JSONObject jsonObject;
 
         @Override
         protected void onPreExecute() {
@@ -95,7 +96,18 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
                     string = WebServiceHelpers.messageSend(
                             mMessageBodyString,
                             userId);
-                    Log.e("TAG", String.valueOf(string));
+                    Log.e("Send message response", String.valueOf(string));
+                    jsonObject = WebServiceHelpers.messageReceive(userId);
+                    if (jsonObject.getString("Message").equals("Successfully")) {
+                        JSONArray details = jsonObject.getJSONArray("details");
+                        for (int i = 0; i < details.length(); i++) {
+                            JSONObject json = details.getJSONObject(i);
+                            if (!messagesArray.contains(json)) {
+                                messagesArray.add(json);
+                            }
+                        }
+                    }
+                    Log.e("TAG", String.valueOf(jsonObject));
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
@@ -106,6 +118,8 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            mMessageBody.setText("");
+            arrayAdapter.notifyDataSetChanged();
         }
     }
 

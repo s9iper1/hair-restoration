@@ -112,11 +112,10 @@ public class WebServiceHelpers {
                                           String userId) throws IOException, JSONException {
         StringBuilder builder = new StringBuilder();
         builder.append(AppGlobals.SEND_MESSAGE);
-        builder.append(String.format("massage=%s", massage));
-        builder.append(AND);
-        builder.append(String.format("user_id=%s", userId));
+        builder.append(String.format("user_id=%s&", userId));
+        builder.append(String.format("message=%s", massage));
         String data = builder.toString();
-        Log.i("LOG", data);
+        Log.i("send message", data);
         HttpURLConnection connection = openConnectionForUrl(data, "POST");
         sendRequestData(connection, data);
         AppGlobals.setResponseCode(connection.getResponseCode());
