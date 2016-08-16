@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -45,6 +48,7 @@ public class UpdateProfile extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBaseView = inflater.inflate(R.layout.update_profile, container, false);
+        setHasOptionsMenu(true);
         mUsername = (EditText) mBaseView.findViewById(R.id.user_name);
         mFirstName = (EditText) mBaseView.findViewById(R.id.first_name);
         mLastName = (EditText) mBaseView.findViewById(R.id.last_name);
@@ -117,5 +121,19 @@ public class UpdateProfile extends Fragment {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.update_profile, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.update_profile_actionbar:
+        }
+        return true;
     }
 }
