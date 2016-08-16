@@ -24,6 +24,10 @@
                 android:textColor="#F0F4F5"
                 android:textSize="25sp" />
 
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -68,6 +72,7 @@
                     android:textSize="14sp" />
 
             </LinearLayout>
+            </ScrollView>
         </LinearLayout>
 
         <ListView
