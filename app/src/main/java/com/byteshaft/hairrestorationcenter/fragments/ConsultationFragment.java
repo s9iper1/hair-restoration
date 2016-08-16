@@ -16,9 +16,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -69,6 +66,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     private FrameLayout progressLayout;
     private TextView percentAge;
     private ProgressDialog progressDialog;
+    public static boolean sUploaded = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -157,10 +155,15 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 if (imagesHashMap.size() < 5) {
                     Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
                 } else {
-                    uploadImages();
+                    if (!sUploaded) {
+                        uploadImages();
+                    } else {
+                        startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
+                    }
                 }
         }
     }
+
 
     private void removeItemFromArray(final int item, final CircularImageView circularImageView) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
@@ -254,7 +257,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     }
 
     private void setImage(final CircularImageView image, File file) {
-        Picasso.with(getActivity()).load(file).resize(150, 150).centerCrop().into(new Target(){
+        Picasso.with(getActivity()).load(file).resize(100, 100).centerCrop().into(new Target(){
 
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -352,19 +355,5 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
         double progress = (l/(double)l1)*100;
         mProgressBar.setProgress((int) progress);
         percentAge.setText((int)progress+"/100");
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.consultation_actionbar, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.consultation_actionbar:
-        }
-        return true;
     }
 }

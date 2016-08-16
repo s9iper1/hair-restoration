@@ -5,9 +5,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -130,19 +127,5 @@ public class ContactUsFragment extends Fragment implements View.OnClickListener 
             Toast.makeText(getActivity(), "Email sent", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(getActivity(), MainActivity.class));
         }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.contactus_actionbar, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.contact_us_actionbar:
-        }
-        return true;
     }
 }

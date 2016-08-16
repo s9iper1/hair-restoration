@@ -8,9 +8,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -21,8 +18,8 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
+import com.byteshaft.hairrestorationcenter.fragments.ConsultationFragment;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.requests.HttpRequest;
@@ -124,6 +121,7 @@ public class HealthInformation extends AppCompatActivity implements
                                             .setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
                                             AppGlobals.sConsultationSuccess = true;
+                                            ConsultationFragment.sUploaded = false;
                                             dialog.dismiss();
                                             finish();
                                         }
@@ -269,7 +267,7 @@ public class HealthInformation extends AppCompatActivity implements
         Log.i("TAG", "array" + answersList.size());
         Log.i("TAG", "required fields" + requiredFields);
         for (int id : idsArray) {
-            if (requiredFields.size() == 4 && answersList.size() >= 4) {
+            if (requiredFields.size() > 3 && answersList.size() >= 4) {
                 if (answersList.containsKey(id)) {
                     value = true;
                     stringBuilder.append(String.format("[%d]=%s&", id, answersList.get(id)));
@@ -301,21 +299,5 @@ public class HealthInformation extends AppCompatActivity implements
         mRequest.setOnReadyStateChangeListener(this);
         mRequest.open("POST", AppGlobals.CONSULTATION_STEP_2);
         mRequest.send(data);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.health_actionbar, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.health_information:
-                Toast.makeText(HealthInformation.this, "hello", Toast.LENGTH_SHORT).show();
-        }
-        return true;
     }
 }

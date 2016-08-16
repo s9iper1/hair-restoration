@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
+        ConsultationFragment.sUploaded = false;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
