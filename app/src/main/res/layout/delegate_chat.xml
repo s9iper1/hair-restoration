@@ -22,8 +22,10 @@
 
     <TextView
         android:id="@+id/message_body"
-        android:text="this is a message"
+        android:background="@mipmap/chat_bg_s"
         android:padding="20dp"
+        android:layout_below="@+id/user_name_sender_or_receiver"
+        android:text="this is a message"
         android:textSize="18sp"
         android:layout_toRightOf="@+id/user_name_sender_or_receiver"
         android:layout_margin="2dp"
@@ -32,7 +34,7 @@
 
     <TextView
         android:id="@+id/message_date_time"
-        android:text="time and date"
+        android:text="test"
         android:textSize="12sp"
         android:textColor="#d3d3d3"
         android:layout_margin="1dp"
