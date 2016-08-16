@@ -1,6 +1,5 @@
 package com.byteshaft.hairrestorationcenter.fragments;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,7 +15,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.R;
-import com.byteshaft.hairrestorationcenter.account.LoginActivity;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 
@@ -128,7 +126,6 @@ public class ResetPassword extends Fragment {
                 } else if (jsonObject.getString("Message").equals("Successfully")) {
                     System.out.println(jsonObject + "working");
                     getActivity().finish();
-                    startActivity(new Intent(AppGlobals.getContext(), LoginActivity.class));
                     Toast.makeText(getActivity(), "Your password successfully changed", Toast.LENGTH_SHORT).show();
                 }
             } catch (JSONException e) {

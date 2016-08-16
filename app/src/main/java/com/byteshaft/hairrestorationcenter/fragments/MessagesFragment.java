@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
@@ -61,7 +63,6 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
                     if (!sNextUrl.trim().isEmpty()) {
                     }
                 }
-
             }
 
             @Override
@@ -90,12 +91,12 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            Toast.makeText(getActivity(), "", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         protected String doInBackground(String... strings) {
             if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
-
                 try {
                     string = WebServiceHelpers.messageSend(
                             mMessageBodyString,
@@ -193,6 +194,17 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
                 holder.messageBody.setText(data.get(position).getString("messege"));
                 holder.dateTime.setText(data.get(position).getString("added_time"));
                 holder.userNameSenderReceiver.setText(data.get(position).getString("name"));
+                if (data.get(position).getInt("received_status") == 1) {
+                    holder.messageBody.setBackgroundResource(R.mipmap.chat_bg_s);
+                } else {
+                    holder.messageBody.setBackgroundResource(R.mipmap.chat_bg_r);
+                }
+                if (data.get(position).getString("name").equals(AppGlobals.getStringFromSharedPreferences(
+                        AppGlobals.KEY_USER_NAME))) {
+                    holder.userNameSenderReceiver.setGravity(Gravity.RIGHT);
+                } else {
+                    holder.userNameSenderReceiver.setGravity(Gravity.LEFT);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
