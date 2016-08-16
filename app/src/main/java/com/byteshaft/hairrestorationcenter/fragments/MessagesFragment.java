@@ -1,5 +1,6 @@
 package com.byteshaft.hairrestorationcenter.fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -79,7 +80,11 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.button_chat_send:
                 mMessageBodyString = mMessageBody.getText().toString();
-                new SendMessageTask().execute();
+                if (!mMessageBodyString.trim().isEmpty()) {
+                    new SendMessageTask().execute();
+                } else {
+                    Toast.makeText(getActivity(), "Message Body cannot be empty", Toast.LENGTH_SHORT).show();
+                }
         }
     }
 
@@ -91,7 +96,7 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Toast.makeText(getActivity(), "", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "sending", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -123,6 +128,7 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            Toast.makeText(getActivity(), "sent", Toast.LENGTH_SHORT).show();
             mMessageBody.setText("");
             arrayAdapter.notifyDataSetChanged();
         }
@@ -131,10 +137,16 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
     class ReceiveMessageTask extends AsyncTask<String, String, ArrayList<Integer>> {
 
         private JSONObject jsonObject;
+        private ProgressDialog progressDialog;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Loading Messages...");
+            progressDialog.setIndeterminate(false);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
         }
 
         @Override
@@ -149,7 +161,6 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
                             messagesArray.add(json);
                         }
                     }
-                    Log.e("TAG", String.valueOf(jsonObject));
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
@@ -160,8 +171,11 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         @Override
         protected void onPostExecute(ArrayList<Integer> integers) {
             super.onPostExecute(integers);
-            arrayAdapter = new ChatArrayAdapter(AppGlobals.getContext(),R.layout.delegate_chat,messagesArray);
-            list.setAdapter(arrayAdapter);
+            progressDialog.dismiss();
+            if (messagesArray.size() > 0) {
+                arrayAdapter = new ChatArrayAdapter(AppGlobals.getContext(), R.layout.delegate_chat, messagesArray);
+                list.setAdapter(arrayAdapter);
+            }
 
         }
     }
@@ -191,20 +205,33 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
                 holder = (ViewHolder) convertView.getTag();
             }
             try {
-                holder.messageBody.setText(data.get(position).getString("messege"));
+                String msg = data.get(position).getString("messege");
+                if (!msg.trim().isEmpty()) {
+                    Log.i("MSG", msg);
+                    String text = msg.substring(0, 1).toUpperCase() + msg.substring(1);
+                    holder.messageBody.setText(text);
+                } else {
+                    holder.messageBody.setText(" ");
+                }
+                String uName = data.get(position).getString("name");
+                String userName = uName.substring(0,1).toUpperCase() + uName.substring(1);
                 holder.dateTime.setText(data.get(position).getString("added_time"));
-                holder.userNameSenderReceiver.setText(data.get(position).getString("name"));
+                holder.userNameSenderReceiver.setText(userName);
+                Log.i("received state", String.valueOf(data.get(position).getInt("received_status")));
                 if (data.get(position).getInt("received_status") == 1) {
                     holder.messageBody.setBackgroundResource(R.mipmap.chat_bg_s);
                 } else {
                     holder.messageBody.setBackgroundResource(R.mipmap.chat_bg_r);
                 }
-                if (data.get(position).getString("name").equals(AppGlobals.getStringFromSharedPreferences(
-                        AppGlobals.KEY_USER_NAME))) {
+                if (data.get(position).getString("name").replaceAll("\\s+","").equals((AppGlobals.getStringFromSharedPreferences(
+                        AppGlobals.KEY_FIRSTNAME))+ AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_LASTNAME))) {
                     holder.userNameSenderReceiver.setGravity(Gravity.RIGHT);
+                    holder.userNameSenderReceiver.setTextColor(getResources().getColor(R.color.colorPrimary));
                 } else {
                     holder.userNameSenderReceiver.setGravity(Gravity.LEFT);
+                    holder.userNameSenderReceiver.setTextColor(getResources().getColor(R.color.colorAccent));
                 }
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }

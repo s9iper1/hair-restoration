@@ -18,7 +18,7 @@
         android:id="@+id/field_answer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/edit_text_bg"
+        android:background="@mipmap/background"
         android:drawablePadding="9dp"
         android:enabled="true"
         android:padding="15dp"
