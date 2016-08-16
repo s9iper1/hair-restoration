@@ -1,1 +1,1 @@
-include ':app', ':requests-release'
+include ':app'
