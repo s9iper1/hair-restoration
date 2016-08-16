@@ -153,12 +153,12 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 }
                 break;
             case R.id.upload_button:
-//                startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
-                if (imagesHashMap.size() < 5) {
-                    Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
-                } else {
-                    uploadImages();
-                }
+                startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
+//                if (imagesHashMap.size() < 5) {
+//                    Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    uploadImages();
+//                }
         }
     }
 
