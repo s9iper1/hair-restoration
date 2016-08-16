@@ -2,26 +2,14 @@ package com.byteshaft.hairrestorationcenter.utils;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.SharedPreferences;
 import android.os.Environment;
+
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import java.io.File;
-
 public class Helpers {
-
-    public static void setIsLoggedIn(boolean loggedIn) {
-        SharedPreferences preferences = AppGlobals.getPreferences();
-        preferences.edit().putBoolean("CONFIG_KEY_FIRST_RUN",  loggedIn).apply();
-    }
-
-    public static boolean isLoggedIn() {
-        SharedPreferences preferences = AppGlobals.getPreferences();
-        return preferences.getBoolean("CONFIG_KEY_FIRST_RUN", false);
-
-    }
 
     public static ProgressDialog getProgressDialog(Activity activity) {
         ProgressDialog progressDialog = new ProgressDialog(activity);
