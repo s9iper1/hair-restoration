@@ -9,6 +9,17 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/messages_text_view"
+            android:layout_marginTop="5dp"
+            android:text="Messages"
+            android:layout_marginBottom="2dp"
+            android:textSize="20sp"
+            android:gravity="center_horizontal"
+            android:textColor="@color/colorPrimary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <com.byteshaft.hairrestorationcenter.utils.List
             android:id="@+id/lv_chat"
             android:layout_width="fill_parent"
