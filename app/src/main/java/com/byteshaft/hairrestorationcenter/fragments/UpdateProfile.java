@@ -28,7 +28,6 @@ import java.io.IOException;
 public class UpdateProfile extends Fragment {
 
     private View mBaseView;
-
     private Button mUpdateButton;
     private EditText mUsername;
     private EditText mFirstName;

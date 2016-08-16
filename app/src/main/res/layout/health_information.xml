@@ -63,7 +63,7 @@
                     android:layout_width="100dp"
                     android:layout_height="40dp"
                     android:layout_marginTop="20dp"
-                    android:background="@drawable/edit_text_bg"
+                    android:background="@mipmap/bg_gender"
                     android:entries="@array/gender_array"
                     android:textSize="14sp" />
 
