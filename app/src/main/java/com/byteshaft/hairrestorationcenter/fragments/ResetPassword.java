@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -36,6 +39,7 @@ public class ResetPassword extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBaseView = inflater.inflate(R.layout.reset_password, container, false);
+        setHasOptionsMenu(true);
         mEmail = (EditText) mBaseView.findViewById(R.id.email_address);
         mOldPassword = (EditText) mBaseView.findViewById(R.id.old_password);
         mNewPassword = (EditText) mBaseView.findViewById(R.id.password);
@@ -128,5 +132,19 @@ public class ResetPassword extends Fragment {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.reset_password, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.reset_actionbar:
+        }
+        return true;
     }
 }

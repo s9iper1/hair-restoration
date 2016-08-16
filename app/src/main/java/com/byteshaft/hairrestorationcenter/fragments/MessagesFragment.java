@@ -7,6 +7,9 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -44,6 +47,7 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBaseView = inflater.inflate(R.layout.messages_frgament, container, false);
+        setHasOptionsMenu(true);
         messagesArray = new ArrayList<>();
         mMessageBody = (EditText) mBaseView.findViewById(R.id.et_chat);
         mSendButton = (ImageButton) mBaseView.findViewById(R.id.button_chat_send);
@@ -217,5 +221,19 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         public TextView messageBody;
         public TextView dateTime;
         public TextView userNameSenderReceiver;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.message_actionbar, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.message_actionbar:
+        }
+        return true;
     }
 }

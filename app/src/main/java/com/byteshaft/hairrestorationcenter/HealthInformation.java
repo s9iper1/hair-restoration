@@ -8,6 +8,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -18,6 +21,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
@@ -89,6 +93,7 @@ public class HealthInformation extends AppCompatActivity implements
         });
         getFieldsDetails();
     }
+
 
     private void getFieldsDetails() {
         sPostRequest = false;
@@ -298,4 +303,19 @@ public class HealthInformation extends AppCompatActivity implements
         mRequest.send(data);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.health_actionbar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.health_information:
+                Toast.makeText(HealthInformation.this, "hello", Toast.LENGTH_SHORT).show();
+        }
+        return true;
+    }
 }
