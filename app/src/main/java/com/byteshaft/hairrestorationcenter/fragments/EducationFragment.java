@@ -17,6 +17,7 @@ import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.SimpleDividerItemDecoration;
+import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 import com.byteshaft.requests.HttpRequest;
 import com.squareup.picasso.Picasso;
 
@@ -163,7 +164,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         @Override
         protected Boolean doInBackground(String... strings) {
             boolean isInternetAvailable = false;
-            if (Helpers.isNetworkAvailable() && Helpers.isInternetWorking()) {
+            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
                 isInternetAvailable = true;
             }
 
