@@ -21,7 +21,8 @@ public class Helpers {
 
     public static String createDirectoryAndSaveFile() {
         String internalFolder = Environment.getExternalStorageDirectory() +
-                File.separator + "Android/data" + File.separator + AppGlobals.getContext().getPackageName();
+                File.separator + "Android/data" + File.separator +
+                AppGlobals.getContext().getPackageName() + "/images";
         File file = new File(internalFolder);
         if (!file.exists()) {
             file.mkdirs();

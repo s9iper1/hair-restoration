@@ -25,21 +25,22 @@
 
         <com.mikhaellopez.circularimageview.CircularImageView
             android:id="@+id/front_side"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="110dp"
+            android:layout_height="110dp"
             android:layout_marginRight="25dp"
             android:src="@mipmap/front_side" />
 
         <com.mikhaellopez.circularimageview.CircularImageView
             android:id="@+id/left_side"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="110dp"
+            android:layout_height="110dp"
             android:layout_marginLeft="25dp"
             android:src="@mipmap/left_side" />
 
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/buttons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/front_left_layout"
@@ -49,28 +50,27 @@
 
         <com.mikhaellopez.circularimageview.CircularImageView
             android:id="@+id/right_side"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="110dp"
+            android:layout_height="110dp"
             android:layout_marginRight="25dp"
             android:src="@mipmap/right_side" />
 
         <com.mikhaellopez.circularimageview.CircularImageView
             android:id="@+id/top_side"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="110dp"
+            android:layout_height="110dp"
             android:layout_marginLeft="25dp"
             android:src="@mipmap/top_side" />
     </LinearLayout>
 
     <com.mikhaellopez.circularimageview.CircularImageView
         android:id="@+id/back_side"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_above="@+id/upload_button"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
+        android:layout_below="@+id/buttons"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="15dp"
         android:src="@mipmap/back_side" />
-
 
     <Button
         android:id="@+id/upload_button"
@@ -80,6 +80,51 @@
         android:layout_marginBottom="20dp"
         android:background="#05262F"
         android:text="Upload Images"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:visibility="visible" />
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/progress_layout"
+        android:background="#e9e9e9"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone">
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:background="#000"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/file_number"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="1/5" />
+
+        <ProgressBar
+            android:id="@+id/progressbar_Horizontal"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="15dp"
+            android:progress="0"
+            android:max="100" />
+
+            <TextView
+                android:id="@+id/percentage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="italic"
+                android:textSize="10sp"
+                android:layout_gravity="right" />
+
+        </LinearLayout>
+    </FrameLayout>
 </RelativeLayout>

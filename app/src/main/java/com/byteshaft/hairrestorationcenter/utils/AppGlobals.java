@@ -39,6 +39,9 @@ public class AppGlobals extends Application {
     public static final String KEY_USER_DETAILS = "user_details";
     private static SharedPreferences sPreferences;
     public static final String QUESTION_LIST = String.format("%squeations_list.php", BASE_URL);
+    public static int sEntryId = 0;
+    public static final String CONSULTATION_STEP_2 = String.format("%sconsultation_step2.php", BASE_URL);
+    public static boolean sConsultationSuccess = false;
 
     @Override
     public void onCreate() {

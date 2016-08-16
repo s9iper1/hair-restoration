@@ -1,5 +1,8 @@
 package com.byteshaft.hairrestorationcenter.account;
 
+import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -7,7 +10,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.R;
@@ -19,9 +25,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-/**
- * Created by husnain on 8/5/16.
- */
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button mRegisterButton;
@@ -33,6 +36,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private EditText mPassword;
     private EditText mVerifyPassword;
     private EditText mPhoneNumber;
+    private TextView mTermsAndCondition;
+    private CheckBox mCheckBox;
 
     private String mUsernameString;
     private String mFirstNameString;
@@ -47,16 +52,31 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register);
+        mTermsAndCondition = (TextView) findViewById(R.id.tv_terms_and_condition);
+        mCheckBox = (CheckBox) findViewById(R.id.checkbox);
         mUsername = (EditText) findViewById(R.id.user_name);
         mFirstName = (EditText) findViewById(R.id.first_name);
         mLastName = (EditText) findViewById(R.id.last_name);
         mEmailAddress = (EditText) findViewById(R.id.email);
-        mZipCode = (EditText) findViewById(R.id.zib_code);
+        mZipCode = (EditText) findViewById(R.id.zip_code);
         mPhoneNumber = (EditText) findViewById(R.id.phone);
         mVerifyPassword = (EditText) findViewById(R.id.verify_password);
         mPassword = (EditText) findViewById(R.id.password);
         mRegisterButton = (Button) findViewById(R.id.register_button);
         mRegisterButton.setOnClickListener(this);
+        mTermsAndCondition.setOnClickListener(this);
+        mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (compoundButton.isChecked()) {
+                    mRegisterButton.setClickable(true);
+                    mRegisterButton.setBackgroundColor(Color.parseColor("#05262F"));
+                } else {
+                    mRegisterButton.setClickable(false);
+                    mRegisterButton.setBackgroundColor(Color.parseColor("#D3D3D3"));
+                }
+            }
+        });
     }
 
     @Override
@@ -72,6 +92,11 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     new RegistrationTask().execute();
                 }
                 break;
+            case R.id.tv_terms_and_condition:
+                // missing 'http://' will cause crashed
+                Uri uri = Uri.parse("http://www.affordablehairtransplants.com/terms-and-conditions");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
         }
     }
 
