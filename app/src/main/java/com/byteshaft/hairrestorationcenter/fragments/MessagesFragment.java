@@ -96,7 +96,7 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
                     string = WebServiceHelpers.messageSend(
                             mMessageBodyString,
                             userId);
-                    Log.e("TAG", String.valueOf(string));
+                    Log.e("Send message response", String.valueOf(string));
                     jsonObject = WebServiceHelpers.messageReceive(userId);
                     if (jsonObject.getString("Message").equals("Successfully")) {
                         JSONArray details = jsonObject.getJSONArray("details");
@@ -118,6 +118,7 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            mMessageBody.setText("");
             arrayAdapter.notifyDataSetChanged();
         }
     }
