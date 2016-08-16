@@ -2,7 +2,9 @@ package com.byteshaft.hairrestorationcenter;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +27,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,15 +44,19 @@ public class HealthInformation extends AppCompatActivity implements
     private HashMap<Integer, String> answersList;
     private Button submitButton;
     private StringBuilder stringBuilder = new StringBuilder();
-    private int requiredFields = 1;
+    private ArrayList<String> requiredFields;
+    private int idForGender = 2;
+    private static boolean sPostRequest = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.health_information);
+        Log.i("KEY", "" + AppGlobals.sEntryId);
         fieldData = new ArrayList<>();
         idsArray = new ArrayList<>();
         answersList = new HashMap<>();
+        requiredFields = new ArrayList<>();
         age = (EditText) findViewById(R.id.age);
         gender = (Spinner) findViewById(R.id.gender);
         submitButton = (Button) findViewById(R.id.submit_answers);
@@ -86,6 +91,7 @@ public class HealthInformation extends AppCompatActivity implements
     }
 
     private void getFieldsDetails() {
+        sPostRequest = false;
         mProgressDialog.show();
         mRequest = new HttpRequest(getApplicationContext());
         mRequest.setOnReadyStateChangeListener(this);
@@ -94,17 +100,39 @@ public class HealthInformation extends AppCompatActivity implements
     }
 
     @Override
-    public void onReadyStateChange(HttpURLConnection httpURLConnection, int i) {
+    public void onReadyStateChange(HttpRequest request, int i) {
         switch (i) {
             case HttpRequest.STATE_DONE:
                 mProgressDialog.dismiss();
-                try {
-                    switch (httpURLConnection.getResponseCode()) {
-                        case HttpURLConnection.HTTP_OK:
+                switch (request.getStatus()) {
+                    case HttpURLConnection.HTTP_OK:
+                        mProgressDialog.dismiss();
+                        if (sPostRequest) {
+                            Log.i("TAG", mRequest.getResponseText());
+                            try {
+                                JSONObject jsonObject = new JSONObject(mRequest.getResponseText());
+                                if (jsonObject.getString("Message").equals("Successfully")) {
+
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(HealthInformation.this);
+                                    alertDialogBuilder.setTitle("Success");
+                                    alertDialogBuilder.setMessage("Your details have uploaded successfully.")
+                                            .setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            AppGlobals.sConsultationSuccess = true;
+                                            dialog.dismiss();
+                                            finish();
+                                        }
+                                    });
+                                    AlertDialog alertDialog = alertDialogBuilder.create();
+                                    alertDialog.show();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            Log.e("TAG", stringBuilder.toString());
+                        } else {
                             parseJsonAndSetUi(mRequest.getResponseText());
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                        }
                 }
         }
 
@@ -127,7 +155,7 @@ public class HealthInformation extends AppCompatActivity implements
                         idsArray.add(json.getInt("id"));
                         age.setId(json.getInt("id"));
                     } else if (json.getString("title").equals("Gender")) {
-//                        idsArray.add(json.getInt("id"));
+                        idForGender = json.getInt("id");
                     }
                 }
             } else {
@@ -146,8 +174,18 @@ public class HealthInformation extends AppCompatActivity implements
         switch (view.getId()) {
             case R.id.submit_answers:
                 submitButton.requestFocus();
-                Log.i("TAG", String.valueOf(idsArray));
-                Log.i("String"," "+ validateEditText());
+                if (AppGlobals.sEntryId == 0) {
+                    Toast.makeText(HealthInformation.this, "please try again process failed",
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    boolean result = validateEditText();
+                    Log.i("boolean", " " + result);
+                    if (result) {
+                        mProgressDialog.show();
+                        sendConsultationData(stringBuilder.toString());
+                    }
+                }
                 break;
         }
     }
@@ -193,7 +231,12 @@ public class HealthInformation extends AppCompatActivity implements
                                 Log.i(holder.editText.getText().toString(), String.valueOf(fieldsDetail.get(position).getInt("id")));
                                 answersList.put(fieldsDetail.get(position).getInt("id"), holder.editText.getText().toString());
                                 if (fieldsDetail.get(position).getInt("required") == 1) {
-                                    requiredFields++;
+                                    if (!requiredFields.contains(String.valueOf(fieldsDetail.
+                                            get(position).getInt("id")))) {
+                                        requiredFields.add(String.valueOf(fieldsDetail.
+                                                get(position).getInt("id")));
+                                    }
+                                    Log.i("REQUIRED", "fields" + requiredFields);
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -216,15 +259,17 @@ public class HealthInformation extends AppCompatActivity implements
     }
 
     private boolean validateEditText() {
+        stringBuilder = new StringBuilder();
         boolean value = false;
-        Log.i("TAG", "" + answersList.size());
-        for (int id: idsArray) {
-            if (requiredFields == 5 && answersList.size() >= 4) {
+        Log.i("TAG", "array" + answersList.size());
+        Log.i("TAG", "required fields" + requiredFields);
+        for (int id : idsArray) {
+            if (requiredFields.size() == 4 && answersList.size() >= 4) {
                 if (answersList.containsKey(id)) {
                     value = true;
-                    stringBuilder.append(String.format("[%d]=%s", id, answersList.get(id)));
+                    stringBuilder.append(String.format("[%d]=%s&", id, answersList.get(id)));
                 }
-            } else if (requiredFields < 5 && answersList.size() < 4) {
+            } else if (requiredFields.size() < 4 && answersList.size() < 4) {
                 value = false;
                 Toast.makeText(HealthInformation.this, "All required fields must be filled", Toast.LENGTH_SHORT).show();
                 break;
@@ -233,12 +278,24 @@ public class HealthInformation extends AppCompatActivity implements
                 break;
             }
         }
+        stringBuilder.append(String.format("user_id=%s&", AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_USER_ID)));
+        stringBuilder.append(String.format("entry_id=%s&", AppGlobals.sEntryId));
+        stringBuilder.append(String.format("[%d]=%s", idForGender, gender.getSelectedItem().toString()));
+        Log.i("String", stringBuilder.toString());
         return value;
     }
 
     class ViewHolder {
         public TextView title;
         public EditText editText;
+    }
+
+    private void sendConsultationData(String data) {
+        sPostRequest = true;
+        mRequest = new HttpRequest(getApplicationContext());
+        mRequest.setOnReadyStateChangeListener(this);
+        mRequest.open("POST", AppGlobals.CONSULTATION_STEP_2);
+        mRequest.send(data);
     }
 
 }

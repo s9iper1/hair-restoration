@@ -1,6 +1,7 @@
 package com.byteshaft.hairrestorationcenter.fragments;
 
 import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,7 +23,6 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
@@ -45,7 +45,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
         mProgressDialog = Helpers.getProgressDialog(getActivity());
-        getEducationData();
+        new CheckInternet().execute();
         Log.i("KEY_USER_ID", AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_USER_ID));
         return mBaseView;
     }
@@ -59,18 +59,14 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
     }
 
     @Override
-    public void onReadyStateChange(HttpURLConnection httpURLConnection, int i) {
+    public void onReadyStateChange(HttpRequest request, int i) {
         switch (i) {
             case HttpRequest.STATE_DONE:
                 mProgressDialog.dismiss();
-                try {
-                    switch (httpURLConnection.getResponseCode()) {
-                        case HttpURLConnection.HTTP_OK:
-                            sAdapter = new EducationAdapter(parseJson(mRequest.getResponseText()));
-                            mRecyclerView.setAdapter(sAdapter);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                switch (request.getStatus()) {
+                    case HttpURLConnection.HTTP_OK:
+                        sAdapter = new EducationAdapter(parseJson(mRequest.getResponseText()));
+                        mRecyclerView.setAdapter(sAdapter);
                 }
         }
     }
@@ -147,6 +143,42 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
             textViewDescription = (TextView) itemView.findViewById(R.id.description);
             textViewDate = (TextView) itemView.findViewById(R.id.date);
 
+        }
+    }
+
+    class CheckInternet extends AsyncTask<String, String, Boolean> {
+
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Checking Internet...");
+            progressDialog.setIndeterminate(false);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+            boolean isInternetAvailable = false;
+            if (Helpers.isNetworkAvailable() && Helpers.isInternetWorking()) {
+                isInternetAvailable = true;
+            }
+
+            return isInternetAvailable;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            progressDialog.dismiss();
+            if (aBoolean) {
+                getEducationData();
+            } else {
+                AppGlobals.alertDialog(getActivity(), "No internet", "please check your internet connection");
+            }
         }
     }
 }

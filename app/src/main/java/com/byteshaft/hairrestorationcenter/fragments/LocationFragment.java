@@ -23,7 +23,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
@@ -59,18 +58,14 @@ public class LocationFragment extends Fragment implements HttpRequest.OnReadySta
     }
 
     @Override
-    public void onReadyStateChange(HttpURLConnection httpURLConnection, int i) {
+    public void onReadyStateChange(HttpRequest request, int i) {
         switch (i) {
             case HttpRequest.STATE_DONE:
                 mProgressDialog.dismiss();
-                try {
-                    switch (httpURLConnection.getResponseCode()) {
-                        case HttpURLConnection.HTTP_OK:
-                            sAdapter = new LocationAdapter(parseJson(mRequest.getResponseText()));
-                            mRecyclerView.setAdapter(sAdapter);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                switch (request.getStatus()) {
+                    case HttpURLConnection.HTTP_OK:
+                        sAdapter = new LocationAdapter(parseJson(mRequest.getResponseText()));
+                        mRecyclerView.setAdapter(sAdapter);
                 }
         }
     }
@@ -101,7 +96,7 @@ public class LocationFragment extends Fragment implements HttpRequest.OnReadySta
 
         private ArrayList<JSONObject> data;
 
-        public LocationAdapter(ArrayList<JSONObject> data)   {
+        public LocationAdapter(ArrayList<JSONObject> data) {
             this.data = data;
         }
 
@@ -118,15 +113,15 @@ public class LocationFragment extends Fragment implements HttpRequest.OnReadySta
             holder.setIsRecyclable(false);
             try {
 
-                Log.i("Location","http:"+ data.get(position).getString("photo").replaceAll("\"", ""));
+                Log.i("Location", "http:" + data.get(position).getString("photo").replaceAll("\"", ""));
                 Picasso.with(getActivity())
-                        .load("http:"+ data.get(position).getString("photo").replaceAll("\"", ""))
+                        .load("http:" + data.get(position).getString("photo").replaceAll("\"", ""))
                         .resize(900, 300)
                         .centerCrop()
                         .into(mViewHolder.locationImage);
                 mViewHolder.locationTitle.setText(data.get(position).getString("title"));
                 mViewHolder.addressText.setText(data.get(position).getString("address"));
-                mViewHolder.phoneText.setText( "Phone: " + data.get(position).getString("phone"));
+                mViewHolder.phoneText.setText("Phone: " + data.get(position).getString("phone"));
                 mViewHolder.tollFreeNumber.setText("Toll Free" + data.get(position).getString("toll_free"));
 
             } catch (JSONException e) {

@@ -2,6 +2,7 @@ package com.byteshaft.hairrestorationcenter.fragments;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.HealthInformation;
+import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
@@ -37,13 +39,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
 public class ConsultationFragment extends Fragment implements View.OnClickListener,
-        HttpRequest.OnReadyStateChangeListener, HttpRequest.FileUploadProgressListener {
+        HttpRequest.OnReadyStateChangeListener, HttpRequest.OnFileUploadProgressListener {
 
     private View mBaseView;
     private CircularImageView mFrontSide;
@@ -64,6 +65,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     private ProgressBar mProgressBar;
     private FrameLayout progressLayout;
     private TextView percentAge;
+    private ProgressDialog progressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -88,6 +90,14 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
         mUploadButton.setOnClickListener(this);
         intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         return mBaseView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (AppGlobals.sConsultationSuccess) {
+            MainActivity.loadFragment(new EducationFragment());
+        }
     }
 
     @Override
@@ -139,6 +149,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 }
                 break;
             case R.id.upload_button:
+//                startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
                 if (imagesHashMap.size() < 5) {
                     Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
                 } else {
@@ -269,7 +280,6 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
         } else {
             openCamera(requestCode);
         }
-
     }
 
     private void openCamera(int requestCode) {
@@ -301,13 +311,21 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     }
 
     @Override
-    public void onReadyStateChange(HttpURLConnection httpURLConnection, int i) {
+    public void onReadyStateChange(HttpRequest request, int i) {
         JSONObject jsonObject;
         Log.i("TAG","response" +  i);
         switch (i) {
-            case HttpRequest.STATE_DONE:
+            case HttpRequest.STATE_LOADING:
                 progressLayout.setVisibility(View.GONE);
                 mUploadButton.setVisibility(View.VISIBLE);
+                progressDialog = new ProgressDialog(getActivity());
+                progressDialog.setMessage("Finishing up...");
+                progressDialog.setIndeterminate(false);
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+                break;
+            case HttpRequest.STATE_DONE:
+                progressDialog.dismiss();
                 Log.i("Consultation:STATE_DONE", mRequest.getResponseText());
                 try {
                     jsonObject = new JSONObject(mRequest.getResponseText());
@@ -324,21 +342,14 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     }
 
     @Override
-    public void onFileUploadProgress(File file, long l, long l1) {
-        Log.i("TAG","file: " +file.getAbsolutePath()+ "uploaded: "+ l + "total: " + l1 );
+    public void onFileUploadProgress(HttpRequest httpRequest, File file, long l, long l1) {
         if (!uploaded.contains(file.getAbsolutePath())) {
             uploaded.add(file.getAbsolutePath());
             mProgressBar.setProgress(0);
         }
         uploadDetails.setText(uploaded.size()+"/"+imagesHashMap.size());
         double progress = (l/(double)l1)*100;
-        Log.i("current progress", "" + progress);
         mProgressBar.setProgress((int) progress);
         percentAge.setText((int)progress+"/100");
-
-
-
-
-
     }
 }

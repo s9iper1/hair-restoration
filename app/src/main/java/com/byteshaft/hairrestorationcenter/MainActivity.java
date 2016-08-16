@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sInstance = this;
         if (!AppGlobals.isUserLoggedIn()) {
             startActivity(new Intent(AppGlobals.getContext(), LoginActivity.class));
         }
@@ -126,8 +127,8 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    public void loadFragment(Fragment fragment) {
-        FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+    public static void loadFragment(Fragment fragment) {
+        FragmentTransaction tx = MainActivity.getInstance().getSupportFragmentManager().beginTransaction();
         tx.replace(R.id.container, fragment);
         tx.commit();
     }
