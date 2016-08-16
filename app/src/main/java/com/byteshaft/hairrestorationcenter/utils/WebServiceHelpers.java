@@ -123,7 +123,7 @@ public class WebServiceHelpers {
         System.out.println(connection.getResponseCode());
         return readResponseForSendMessage(connection);
     }
-    
+
     public static JSONObject aboutUs() throws IOException, JSONException {
         String data = AppGlobals.ABOUT_US_URL;
         HttpURLConnection connection = openConnectionForUrl(data, "POST");
