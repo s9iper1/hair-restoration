@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,13 +47,6 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         list = (com.byteshaft.hairrestorationcenter.utils.List) mBaseView.findViewById(R.id.lv_chat);
         mSendButton.setOnClickListener(this);
         userId = AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_USER_ID);
-        new FetchMessageTask().execute();
-        mMessageBody.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.i("TAg", "" + mMessageBody.isEnabled());
-            }
-        });
         new FetchMessageTask().execute();
         return mBaseView;
     }

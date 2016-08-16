@@ -176,7 +176,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
             if (aBoolean) {
                 getEducationData();
             } else {
-                AppGlobals.alertDialog(getActivity(), "No internet", "please check your internet connection");
+                AppGlobals.alertDialog(getActivity(), "No internet", "Please check your internet connection");
             }
         }
     }

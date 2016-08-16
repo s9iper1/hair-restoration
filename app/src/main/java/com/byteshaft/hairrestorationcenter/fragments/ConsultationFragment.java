@@ -158,7 +158,8 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     if (!sUploaded) {
                         uploadImages();
                     } else {
-                        startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
+                        MainActivity.loadFragment(new HealthInformation());
+//                        startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
                     }
                 }
         }
@@ -257,7 +258,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     }
 
     private void setImage(final CircularImageView image, File file) {
-        Picasso.with(getActivity()).load(file).resize(100, 100).centerCrop().into(new Target(){
+        Picasso.with(getActivity()).load(file).resize(80, 80).centerCrop().into(new Target(){
 
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -266,7 +267,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
 
             @Override
             public void onBitmapFailed(final Drawable errorDrawable) {
-                Log.d("TAG", "FAILED");
+                Log.e("TAG", "FAILED");
             }
 
             @Override
@@ -336,7 +337,8 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     if (jsonObject.getString("Message").equals("Successfully")) {
                         JSONObject jsonDetails = jsonObject.getJSONObject("details");
                         AppGlobals.sEntryId = jsonDetails.getInt("entry_id");
-                        startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
+                        MainActivity.loadFragment(new HealthInformation());
+//                        startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
