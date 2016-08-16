@@ -12,16 +12,18 @@ public class AppGlobals extends Application {
 
     private static Context sContext;
     private static final String BASE_URL = "http://dynobranding.com/client/hairapp/api/";
+    public static final String REGISTER_URL = String.format("%ssignup.php?", BASE_URL);
+    public static final String LOGIN_URL =  String.format("%ssignin.php?", BASE_URL);
+    public static final String RESET_PASSWORD_URL = String.format("%sreset_password.php?", BASE_URL);
+    public static final String FORGET_PASSWORD_URL = String.format("%sforgotpassword.php?", BASE_URL);
+    public static final String UPDATE_PROFILE_URL = String.format("%supdate_profile.php?", BASE_URL);
     public static final String CONTACT_US_URL = String.format("%scontactus.php?", BASE_URL);
     public static final String ABOUT_US_URL = String.format("%saboutus.php", BASE_URL);
-    public static final String REGISTER_URL = String.format("%ssignup.php?", BASE_URL); // "http://dynobranding.com/client/hairapp/api/signup.php?";
-    public static final String LOGIN_URL =  String.format("%ssignin.php?", BASE_URL); //"http://dynobranding.com/client/hairapp/api/signin.php?";
-    public static final String RESET_PASSWORD_URL = String.format("%sreset_password.php?", BASE_URL); // "http://dynobranding.com/client/hairapp/api/reset_password.php?";
-    public static final String FORGET_PASSWORD_URL = String.format("%sforgotpassword.php?", BASE_URL);  //"http://dynobranding.com/client/hairapp/api/forgotpassword.php?";
-    public static final String UPDATE_PROFILE_URL = String.format("%supdate_profile.php?", BASE_URL); //"http://dynobranding.com/client/hairapp/api/update_profile.php?";
     public static final String EDUCATION_URL = String.format("%seducation_list.php", BASE_URL);
     public static final String LOCATIONS_URL = String.format("%slocations_list.php", BASE_URL);
     public static final String CONSULTATION_STEP_ONE = String.format("%sconsultation_step1.php", BASE_URL);
+    public static final String SEND_MESSAGE = String.format("%ssend-message.php?", BASE_URL);
+    public static final String RECEIVE_MESSAGE = String.format("%suser-message.php?", BASE_URL);
     public static final String KEY_USER_TOKEN = "token";
     public static final String KEY_FIRSTNAME = "firstname";
     public static final String KEY_LASTNAME = "lastname";
