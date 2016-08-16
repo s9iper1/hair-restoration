@@ -1,6 +1,5 @@
 package com.byteshaft.hairrestorationcenter.fragments;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -55,6 +54,12 @@ public class UpdateProfile extends Fragment {
         mZipCode = (EditText) mBaseView.findViewById(R.id.zip_code);
         mPhoneNumber = (EditText) mBaseView.findViewById(R.id.phone);
         mUpdateButton = (Button) mBaseView.findViewById(R.id.update_button);
+        mUsername.setText(AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_USER_NAME));
+        mLastName.setText(AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_LASTNAME));
+        mFirstName.setText(AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_FIRSTNAME));
+        mEmailAddress.setText(AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_EMAIL));
+        mZipCode.setText(AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_ZIP_CODE));
+        mPhoneNumber.setText(AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_PHONE_NUMBER));
         mUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -71,7 +76,7 @@ public class UpdateProfile extends Fragment {
         return mBaseView;
     }
 
-    class UpdateUserProfileTask extends AsyncTask<String, String, String> {
+    class UpdateUserProfileTask extends AsyncTask<String, String, JSONObject> {
         private JSONObject jsonObject;
 
         @Override
@@ -81,7 +86,7 @@ public class UpdateProfile extends Fragment {
         }
 
         @Override
-        protected String doInBackground(String... strings) {
+        protected JSONObject doInBackground(String... strings) {
 
             if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()){
 
@@ -99,25 +104,34 @@ public class UpdateProfile extends Fragment {
                     e.printStackTrace();
                 }
             }
-            return null;
+            return jsonObject;
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
+        protected void onPostExecute(JSONObject jsonObject) {
+            super.onPostExecute(jsonObject);
             WebServiceHelpers.dismissProgressDialog();
-            try {
-                if (jsonObject.getString("Message").equals("Input is invalid;")) {
-                    AppGlobals.alertDialog(getActivity(), "Registration Failed!", "username or email already exits");
+            if (jsonObject != null) {
+                try {
+                    if (jsonObject.getString("Message").equals("Input is invalid;")) {
+                        AppGlobals.alertDialog(getActivity(), "Registration Failed!", "username or email already exits");
 
-                } else if (jsonObject.getString("Message").equals("Successfully")) {
-                    System.out.println(jsonObject + "working");
-                    getActivity().finish();
-                    startActivity(new Intent(AppGlobals.getContext(), MainActivity.class));
-                    Toast.makeText(getActivity(), "Account Created Successfully", Toast.LENGTH_SHORT).show();
+                    } else if (jsonObject.getString("Message").equals("Successfully")) {
+                        JSONObject data = jsonObject.getJSONObject("details");
+                        //saving values
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_FIRSTNAME, mFirstNameString);
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_LASTNAME, mLastNameString);
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_EMAIL, mEmailAddressString);
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_PHONE_NUMBER, mPhoneNumberString);
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_ZIP_CODE, mZipCodeString);
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_USER_ID, mUserIdString);
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_USER_NAME, mUsernameString);
+                        MainActivity.loadFragment(new EducationFragment());
+                        Toast.makeText(getActivity(), "Profile Updated Successfully", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
         }
     }
