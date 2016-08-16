@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -51,7 +50,6 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
         mProgressDialog = Helpers.getProgressDialog(getActivity());
         new CheckInternet().execute();
-        Log.i("KEY_USER_ID", AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_USER_ID));
         return mBaseView;
     }
 
@@ -114,7 +112,6 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
             holder.setIsRecyclable(false);
             try {
                 mViewHolder.textViewOffers.setText(data.get(position).getString("title"));
-                Log.i("Education","http:"+ data.get(position).getString("photo").replaceAll("\"", ""));
                 Picasso.with(getActivity())
                         .load("http:"+data.get(position).getString("photo").replaceAll("\"", ""))
                         .resize(900, 300)

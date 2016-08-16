@@ -106,7 +106,6 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
                     string = WebServiceHelpers.messageSend(
                             mMessageBodyString,
                             userId);
-                    Log.e("Send message response", String.valueOf(string));
                     jsonObject = WebServiceHelpers.messageReceive(userId);
                     if (jsonObject.getString("Message").equals("Successfully")) {
                         JSONArray details = jsonObject.getJSONArray("details");
@@ -117,7 +116,6 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
                             }
                         }
                     }
-                    Log.e("TAG", String.valueOf(jsonObject));
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
@@ -207,7 +205,6 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
             try {
                 String msg = data.get(position).getString("messege");
                 if (!msg.trim().isEmpty()) {
-                    Log.i("MSG", msg);
                     String text = msg.substring(0, 1).toUpperCase() + msg.substring(1);
                     holder.messageBody.setText(text);
                 } else {
@@ -217,7 +214,6 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
                 String userName = uName.substring(0,1).toUpperCase() + uName.substring(1);
                 holder.dateTime.setText(data.get(position).getString("added_time"));
                 holder.userNameSenderReceiver.setText(userName);
-                Log.i("received state", String.valueOf(data.get(position).getInt("received_status")));
                 if (data.get(position).getInt("received_status") == 1) {
                     holder.messageBody.setBackgroundResource(R.mipmap.chat_bg_s);
                 } else {

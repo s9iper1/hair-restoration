@@ -3,7 +3,6 @@ package com.byteshaft.hairrestorationcenter.fragments;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -108,7 +107,6 @@ public class ResetPassword extends Fragment {
                             mEmailAddressString,
                             mOldPasswordString,
                             mPasswordString);
-                    Log.e("TAG", String.valueOf(jsonObject));
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }

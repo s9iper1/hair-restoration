@@ -153,12 +153,12 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 }
                 break;
             case R.id.upload_button:
-                startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
-//                if (imagesHashMap.size() < 5) {
-//                    Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
-//                } else {
-//                    uploadImages();
-//                }
+//                startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
+                if (imagesHashMap.size() < 5) {
+                    Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
+                } else {
+                    uploadImages();
+                }
         }
     }
 
@@ -222,7 +222,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
             // If request is cancelled, the result arrays are empty.
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.i("TAG", "Permission granted");
+                Toast.makeText(getActivity(), "Permission granted", Toast.LENGTH_SHORT).show();
                 openCamera(requestCode);
             } else {
                 Toast.makeText(getActivity(), "Permission denied!"
@@ -302,7 +302,6 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
         data.append(FormData.TYPE_CONTENT_TEXT, "user_id",
                 AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_USER_ID));
         for (int i = 1; i < 6; i++) {
-            Log.i("TAG", "image"+i);
             data.append(FormData.TYPE_CONTENT_FILE,"image"+i , imagesHashMap.get(i));
         }
         mRequest = new HttpRequest(getActivity().getApplicationContext());
@@ -317,7 +316,6 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     @Override
     public void onReadyStateChange(HttpRequest request, int i) {
         JSONObject jsonObject;
-        Log.i("TAG","response" +  i);
         switch (i) {
             case HttpRequest.STATE_LOADING:
                 progressLayout.setVisibility(View.GONE);
@@ -330,7 +328,6 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 break;
             case HttpRequest.STATE_DONE:
                 progressDialog.dismiss();
-                Log.i("Consultation:STATE_DONE", mRequest.getResponseText());
                 try {
                     jsonObject = new JSONObject(mRequest.getResponseText());
                     if (jsonObject.getString("Message").equals("Successfully")) {

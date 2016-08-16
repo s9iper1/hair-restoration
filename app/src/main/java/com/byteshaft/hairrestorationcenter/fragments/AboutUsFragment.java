@@ -3,7 +3,6 @@ package com.byteshaft.hairrestorationcenter.fragments;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,7 +52,6 @@ public class AboutUsFragment extends Fragment {
                         JSONObject data = jsonObject.getJSONObject("details");
                         aboutUs = data.getString("aboutus");
                     }
-                    Log.e("TAG", String.valueOf(aboutUs));
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
