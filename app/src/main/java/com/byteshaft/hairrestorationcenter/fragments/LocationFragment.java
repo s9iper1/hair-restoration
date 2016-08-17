@@ -113,7 +113,7 @@ public class LocationFragment extends Fragment implements HttpRequest.OnReadySta
             holder.setIsRecyclable(false);
             try {
                 Picasso.with(getActivity())
-                        .load("http:" + data.get(position).getString("photo").replaceAll("\"", ""))
+                        .load("http:" + data.get(position).getString("photo").replaceAll("\"", "").replaceAll(" ", "%20"))
                         .resize(900, 300)
                         .centerCrop()
                         .into(mViewHolder.locationImage);

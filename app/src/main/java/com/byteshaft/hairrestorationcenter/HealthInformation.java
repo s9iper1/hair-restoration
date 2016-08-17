@@ -159,8 +159,20 @@ public class HealthInformation extends Fragment implements
                     } else if (json.getString("title").equals("Age")) {
                         idsArray.add(json.getInt("id"));
                         age.setId(json.getInt("id"));
+                        if (json.getInt("required") == 1) {
+                            if (!requiredFields.contains(String.valueOf(json.getInt("id")))) {
+                                requiredFields.add(String.valueOf(json.getInt("id")));
+                            }
+                            Log.i("REQUIRED", "fields" + requiredFields);
+                        }
                     } else if (json.getString("title").equals("Gender")) {
                         idForGender = json.getInt("id");
+                        if (json.getInt("required") == 1) {
+                            if (!requiredFields.contains(String.valueOf(json.getInt("id")))) {
+                                requiredFields.add(String.valueOf(json.getInt("id")));
+                            }
+                            Log.i("REQUIRED", "fields" + requiredFields);
+                        }
                     }
                 }
             } else {

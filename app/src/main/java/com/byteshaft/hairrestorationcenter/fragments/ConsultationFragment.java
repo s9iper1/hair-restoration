@@ -161,7 +161,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
             case R.id.upload_button:
 //                startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
                 if (imagesHashMap.size() < 5) {
-                    Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Please capture all the images", Toast.LENGTH_SHORT).show();
                 } else {
                     if (!sUploaded) {
                         uploadImages();
@@ -247,7 +247,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (selectImage) {
+        if (selectImage && resultCode == Activity.RESULT_OK) {
             Log.i("Consultation", "image selected");
             Uri selectedImageUri = data.getData();
             String[] projection = {MediaStore.MediaColumns.DATA};
