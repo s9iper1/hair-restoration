@@ -15,6 +15,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -159,7 +161,11 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     if (!sUploaded) {
                         new CheckInternet().execute();
                     } else {
-                        MainActivity.loadFragment(new HealthInformation());
+                        FragmentManager fragmentManager = getFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.replace(R.id.container, new HealthInformation());
+                        fragmentTransaction.addToBackStack("Health_info");
+                        fragmentTransaction.commit();
                     }
                 }
         }
@@ -382,7 +388,14 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     if (jsonObject.getString("Message").equals("Successfully")) {
                         JSONObject jsonDetails = jsonObject.getJSONObject("details");
                         AppGlobals.sEntryId = jsonDetails.getInt("entry_id");
-                        MainActivity.loadFragment(new HealthInformation());
+
+                        FragmentManager fragmentManager = getFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.replace(R.id.container, new HealthInformation());
+                        fragmentTransaction.addToBackStack("Health_info");
+                        fragmentTransaction.commit();
+
+
 //                        startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
                     }
                 } catch (JSONException e) {
