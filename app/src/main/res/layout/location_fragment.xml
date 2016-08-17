@@ -14,7 +14,7 @@
         android:textColor="#154750"
         android:textSize="30dp"/>
 
-    <ExpandableListView
+    <com.byteshaft.hairrestorationcenter.utils.AnimatedExpandableListView
         android:id="@+id/list_view_locations"
         android:layout_marginTop="4dp"
         android:layout_below="@+id/heading"
@@ -23,6 +23,6 @@
         android:indicatorRight="20dp"
         android:groupIndicator="@null" >
 
-    </ExpandableListView>
+    </com.byteshaft.hairrestorationcenter.utils.AnimatedExpandableListView>
 
 </RelativeLayout>
