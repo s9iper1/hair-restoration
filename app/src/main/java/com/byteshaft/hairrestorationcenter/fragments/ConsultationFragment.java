@@ -308,7 +308,11 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
 
     private void setImage(final CircularImageView image, File file) {
         Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-        image.setImageBitmap(bitmap);
+        int imageWidth = bitmap.getWidth();
+        int imageHeight = bitmap.getHeight();
+        int newWidth = image.getWidth();
+        int newHeight = (imageHeight * newWidth)/ imageWidth;
+        image.setImageBitmap(Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false));
     }
 
 
