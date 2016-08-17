@@ -3,9 +3,11 @@ package com.byteshaft.hairrestorationcenter.fragments;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -67,6 +69,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     private TextView percentAge;
     private ProgressDialog progressDialog;
     public static boolean sUploaded = false;
+    private boolean selectImage = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -97,6 +100,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     @Override
     public void onResume() {
         super.onResume();
+        selectImage = false;
         if (AppGlobals.sConsultationSuccess) {
             MainActivity.loadFragment(new EducationFragment());
         }
@@ -111,7 +115,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     removeItemFromArray(requestCodes[0], mFrontSide);
                 } else {
                     pressedButtonId = view.getId();
-                    dispatchTakePictureIntent(requestCodes[0]);
+                    selectImage(requestCodes[0]);
                 }
                 break;
             case R.id.left_side:
@@ -120,7 +124,8 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     removeItemFromArray(requestCodes[1], mLeftSide);
                 } else {
                     pressedButtonId = view.getId();
-                    dispatchTakePictureIntent(requestCodes[1]);
+                    selectImage(requestCodes[1]);
+//                    dispatchTakePictureIntent(requestCodes[1]);
                 }
                 break;
             case R.id.right_side:
@@ -129,7 +134,8 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     removeItemFromArray(requestCodes[2], mRightSide);
                 } else {
                     pressedButtonId = view.getId();
-                    dispatchTakePictureIntent(requestCodes[2]);
+                    selectImage(requestCodes[2]);
+//                    dispatchTakePictureIntent(requestCodes[2]);
                 }
                 break;
             case R.id.top_side:
@@ -138,7 +144,8 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     removeItemFromArray(requestCodes[3], mTopSide);
                 } else {
                     pressedButtonId = view.getId();
-                    dispatchTakePictureIntent(requestCodes[3]);
+                    selectImage(requestCodes[3]);
+//                    dispatchTakePictureIntent(requestCodes[3]);
                 }
                 break;
             case R.id.back_side:
@@ -147,7 +154,8 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     removeItemFromArray(requestCodes[4], mBackSide);
                 } else {
                     pressedButtonId = view.getId();
-                    dispatchTakePictureIntent(requestCodes[4]);
+                    selectImage(requestCodes[4]);
+//
                 }
                 break;
             case R.id.upload_button:
@@ -163,6 +171,34 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     }
                 }
         }
+    }
+
+    // Dialog with option to capture image or choose from gallery
+    private void selectImage(final int id) {
+        final CharSequence[] items = {"Take Photo", "Choose from Library", "Cancel"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Add Photo!");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                if (items[item].equals("Take Photo")) {
+                    dispatchTakePictureIntent(id);
+                } else if (items[item].equals("Choose from Library")) {
+                    Intent intent = new Intent(
+                            Intent.ACTION_PICK,
+                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent.setType("image/*");
+                    selectImage = true;
+                    startActivityForResult(
+                            Intent.createChooser(intent, "Select File"),
+                            id);
+                } else if (items[item].equals("Cancel")) {
+                    dialog.dismiss();
+                }
+
+            }
+        });
+        builder.show();
     }
 
 
@@ -211,8 +247,25 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (contains(requestCodes, requestCode) && resultCode == Activity.RESULT_OK) {
+        if (selectImage) {
+            Log.i("Consultation", "image selected");
+            Uri selectedImageUri = data.getData();
+            String[] projection = {MediaStore.MediaColumns.DATA};
+            CursorLoader cursorLoader = new CursorLoader(getActivity(), selectedImageUri, projection, null, null,
+                    null);
+            Cursor cursor = cursorLoader.loadInBackground();
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+            cursor.moveToFirst();
+            String selectedImagePath = cursor.getString(column_index);
             if (!imagesHashMap.containsKey(requestCode)) {
+                imagesHashMap.put(requestCode, selectedImagePath);
+                setImageOnImageView(new File(selectedImagePath));
+            }
+            selectImage = false;
+
+        }else if (contains(requestCodes, requestCode) && resultCode == Activity.RESULT_OK) {
+            if (!imagesHashMap.containsKey(requestCode)) {
+                Log.i("Consultation", "image captured");
                 imagesHashMap.put(requestCode, filePath);
                 setImageOnImageView(new File(filePath));
             }
