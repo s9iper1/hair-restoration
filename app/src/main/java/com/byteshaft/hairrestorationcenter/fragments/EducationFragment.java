@@ -185,13 +185,19 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         }
     }
 
-    public static void alertDialog(Activity activity, String title, String msg) {
+    public void alertDialog(Activity activity, String title, String msg) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder.setTitle(title);
         alertDialogBuilder.setMessage(msg).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 dialog.dismiss();
                 MainActivity.getInstance().finish();
+            }
+        });
+        alertDialogBuilder.setNegativeButton("Retry", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                new CheckInternet().execute();
             }
         });
         AlertDialog alertDialog = alertDialogBuilder.create();

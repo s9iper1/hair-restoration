@@ -7,12 +7,12 @@
         android:id="@+id/heading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
+        android:layout_margin="10dp"
         android:gravity="center"
         android:text="Locations"
         android:layout_gravity="center"
         android:textColor="#154750"
-        android:textSize="30dp"/>
+        android:textSize="30sp"/>
 
     <com.byteshaft.hairrestorationcenter.utils.AnimatedExpandableListView
         android:id="@+id/list_view_locations"
