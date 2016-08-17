@@ -6,9 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -116,7 +113,7 @@ public class LocationFragment extends Fragment implements HttpRequest.OnReadySta
             holder.setIsRecyclable(false);
             try {
                 Picasso.with(getActivity())
-                        .load("http:" + data.get(position).getString("photo").replaceAll("\"", ""))
+                        .load("http:" + data.get(position).getString("photo").replaceAll("\"", "").replaceAll(" ", "%20"))
                         .resize(900, 300)
                         .centerCrop()
                         .into(mViewHolder.locationImage);
@@ -153,19 +150,5 @@ public class LocationFragment extends Fragment implements HttpRequest.OnReadySta
             phoneText = (TextView) itemView.findViewById(R.id.phone_number_text_view);
             tollFreeNumber = (TextView) itemView.findViewById(R.id.toll_free_number);
         }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.health_actionbar, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.location_actionbar:
-        }
-        return true;
     }
 }

@@ -5,12 +5,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -21,7 +17,6 @@ import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
-import com.byteshaft.hairrestorationcenter.utils.List;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 
 import org.json.JSONArray;
@@ -41,9 +36,6 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
     private ArrayList<JSONObject> messagesArray;
     private ChatArrayAdapter arrayAdapter;
     private com.byteshaft.hairrestorationcenter.utils.List list;
-    private static String sNextUrl = "";
-    private static boolean loadMore = false;
-    private boolean isScrollingUp = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -55,23 +47,7 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         list = (com.byteshaft.hairrestorationcenter.utils.List) mBaseView.findViewById(R.id.lv_chat);
         mSendButton.setOnClickListener(this);
         userId = AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_USER_ID);
-        new ReceiveMessageTask().execute();
-        list.setOnDetectScrollListener(new List.OnDetectScrollListener() {
-            @Override
-            public void onUpScrolling() {
-                if (!isScrollingUp && !loadMore) {
-                    isScrollingUp = true;
-                    if (!sNextUrl.trim().isEmpty()) {
-                    }
-                }
-            }
-
-            @Override
-            public void onDownScrolling() {
-                isScrollingUp = false;
-            }
-        });
-        new ReceiveMessageTask().execute();
+        new FetchMessageTask().execute();
         return mBaseView;
     }
 
@@ -97,6 +73,8 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         protected void onPreExecute() {
             super.onPreExecute();
             Toast.makeText(getActivity(), "sending", Toast.LENGTH_SHORT).show();
+            mMessageBody.setEnabled(false);
+            mMessageBody.setText("");
         }
 
         @Override
@@ -127,12 +105,12 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             Toast.makeText(getActivity(), "sent", Toast.LENGTH_SHORT).show();
-            mMessageBody.setText("");
+            mMessageBody.setEnabled(true);
             arrayAdapter.notifyDataSetChanged();
         }
     }
 
-    class ReceiveMessageTask extends AsyncTask<String, String, ArrayList<Integer>> {
+    class FetchMessageTask extends AsyncTask<String, String, ArrayList<Integer>> {
 
         private JSONObject jsonObject;
         private ProgressDialog progressDialog;
@@ -244,19 +222,5 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         public TextView messageBody;
         public TextView dateTime;
         public TextView userNameSenderReceiver;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.message_actionbar, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.message_actionbar:
-        }
-        return true;
     }
 }
