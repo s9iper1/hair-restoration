@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
@@ -43,14 +44,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         sInstance = this;
         mEmail = (EditText) findViewById(R.id.email_address);
         mPassword = (EditText) findViewById(R.id.password);
-
         mLoginButton = (Button) findViewById(R.id.login);
         mRegisterButton = (Button) findViewById(R.id.register);
         mLoginButton.setOnClickListener(this);
         mRegisterButton.setOnClickListener(this);
-
         mForgotPasswordTextView = (TextView) findViewById(R.id.tv_forgot_password);
         mForgotPasswordTextView.setOnClickListener(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        MainActivity.getInstance().finish();
     }
 
     public boolean validate() {
