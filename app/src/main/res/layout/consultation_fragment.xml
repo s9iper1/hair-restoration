@@ -29,6 +29,7 @@
             android:layout_height="110dp"
             android:gravity="center_horizontal|center_vertical"
             android:layout_marginRight="25dp"
+            android:scaleType="centerCrop"
             android:src="@mipmap/front_side" />
 
         <com.mikhaellopez.circularimageview.CircularImageView
@@ -37,6 +38,7 @@
             android:layout_height="110dp"
             android:gravity="center_horizontal|center_vertical"
             android:layout_marginLeft="25dp"
+            android:scaleType="centerCrop"
             android:src="@mipmap/left_side" />
 
     </LinearLayout>
@@ -56,6 +58,7 @@
             android:layout_height="110dp"
             android:gravity="center_horizontal|center_vertical"
             android:layout_marginRight="25dp"
+            android:scaleType="centerCrop"
             android:src="@mipmap/right_side" />
 
         <com.mikhaellopez.circularimageview.CircularImageView
@@ -64,6 +67,7 @@
             android:layout_height="110dp"
             android:gravity="center_horizontal|center_vertical"
             android:layout_marginLeft="25dp"
+            android:scaleType="centerCrop"
             android:src="@mipmap/top_side" />
     </LinearLayout>
 
@@ -75,6 +79,7 @@
         android:gravity="center_horizontal|center_vertical"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="15dp"
+        android:scaleType="centerCrop"
         android:src="@mipmap/back_side" />
 
     <Button
