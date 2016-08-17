@@ -3,24 +3,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/heading"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="25dp"
-                android:gravity="center"
-                android:text="Locations"
-                android:layout_gravity="center"
-                android:textColor="#154750"
-                android:textSize="30dp"/>
+    <TextView
+        android:id="@+id/heading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:gravity="center"
+        android:text="Locations"
+        android:layout_gravity="center"
+        android:textColor="#154750"
+        android:textSize="30dp"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view_location"
+    <ExpandableListView
+        android:id="@+id/list_view_locations"
         android:layout_marginTop="4dp"
         android:layout_below="@+id/heading"
-        android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        android:indicatorRight="20dp"
+        android:groupIndicator="@null" >
+
+    </ExpandableListView>
 
 </RelativeLayout>

@@ -1,24 +1,30 @@
 package com.byteshaft.hairrestorationcenter.fragments;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v4.content.ContextCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
-import com.byteshaft.hairrestorationcenter.utils.SimpleDividerItemDecoration;
 import com.byteshaft.requests.HttpRequest;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -28,28 +34,38 @@ import org.json.JSONObject;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
-public class LocationFragment extends Fragment implements HttpRequest.OnReadyStateChangeListener {
+public class LocationFragment extends Fragment implements
+        HttpRequest.OnReadyStateChangeListener {
 
-    private RecyclerView mRecyclerView;
-    private static LocationAdapter sAdapter;
+    private ExpandableListView mExpandableListView;
     private View mBaseView;
     private HttpRequest mRequest;
-    private CustomView mViewHolder;
     private ProgressDialog mProgressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBaseView = inflater.inflate(R.layout.location_fragment, container, false);
         setHasOptionsMenu(true);
-        mRecyclerView = (RecyclerView) mBaseView.findViewById(R.id.recycler_view_location);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        mRecyclerView.setLayoutManager(linearLayoutManager);
-        mRecyclerView.canScrollVertically(1);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
+        mExpandableListView = (ExpandableListView) mBaseView.findViewById(R.id.list_view_locations);
+        handleCollapseAndExpand();
         mProgressDialog = Helpers.getProgressDialog(getActivity());
         getLocationData();
         return mBaseView;
+    }
+
+    private void handleCollapseAndExpand() {
+        mExpandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+            @Override
+            public void onGroupExpand(int i) {
+
+            }
+        });
+        mExpandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+            @Override
+            public void onGroupCollapse(int i) {
+
+            }
+        });
     }
 
     private void getLocationData() {
@@ -67,8 +83,11 @@ public class LocationFragment extends Fragment implements HttpRequest.OnReadySta
                 mProgressDialog.dismiss();
                 switch (request.getStatus()) {
                     case HttpURLConnection.HTTP_OK:
-                        sAdapter = new LocationAdapter(parseJson(mRequest.getResponseText()));
-                        mRecyclerView.setAdapter(sAdapter);
+                        ExpandableListAdapter adapter = new ExpandableLocationsAdapter(
+                                getContext().getApplicationContext(),
+                                parseJson(mRequest.getResponseText())
+                        );
+                        mExpandableListView.setAdapter(adapter);
                 }
         }
     }
@@ -94,78 +113,160 @@ public class LocationFragment extends Fragment implements HttpRequest.OnReadySta
         return dataList;
     }
 
-    // custom RecyclerView class for inflating customView
-    class LocationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    static class ViewHolder {
+        TextView headerTextView;
+        ImageView collapseExpandIndicator;
+    }
 
-        private ArrayList<JSONObject> data;
+    static class SubItemsViewHolder {
+        ImageView bannerImageView;
+        TextView addressTextView;
+        TextView phoneNumberTextView;
+        TextView tollFreeTextView;
+        ProgressBar progressBar;
+    }
 
-        public LocationAdapter(ArrayList<JSONObject> data) {
-            this.data = data;
+    class ExpandableLocationsAdapter extends BaseExpandableListAdapter {
+
+        private ArrayList<JSONObject> mItems;
+        private Context mContext;
+
+        public ExpandableLocationsAdapter(Context context, ArrayList<JSONObject> items) {
+            mContext = context;
+            mItems = items;
         }
 
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.delegate_location,
-                    parent, false);
-            mViewHolder = new CustomView(view);
-            return mViewHolder;
+        public int getGroupCount() {
+            return mItems.size();
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            holder.setIsRecyclable(false);
+        public int getChildrenCount(int i) {
+            // Each header is supposed to have only one sub item.
+            return 1;
+        }
+
+        @Override
+        public Object getGroup(int i) {
+            String groupName = null;
             try {
-                Picasso.with(getActivity())
-                        .load("http:" + data.get(position).getString("photo").replaceAll("\"", ""))
-                        .resize(900, 300)
-                        .centerCrop()
-                        .into(mViewHolder.locationImage);
-                mViewHolder.locationTitle.setText(data.get(position).getString("title"));
-                mViewHolder.addressText.setText(data.get(position).getString("address"));
-                mViewHolder.phoneText.setText("Phone: " + data.get(position).getString("phone"));
-                mViewHolder.tollFreeNumber.setText("Toll Free" + data.get(position).getString("toll_free"));
-
+                groupName =  mItems.get(i).getString("title");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            return groupName;
         }
 
         @Override
-        public int getItemCount() {
-            return data.size();
+        public Object getChild(int i, int i1) {
+            return null;
+        }
+
+        @Override
+        public long getGroupId(int i) {
+            return 0;
+        }
+
+        @Override
+        public long getChildId(int i, int i1) {
+            return 0;
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return true;
+        }
+
+        @Override
+        public View getGroupView(int i, boolean b, View view, ViewGroup viewGroup) {
+            ViewHolder holder;
+            if (view == null) {
+                LayoutInflater inflater = (LayoutInflater) mContext
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inflater.inflate(R.layout.delegate_location_header, null);
+                holder = new ViewHolder();
+                holder.headerTextView = (TextView) view.findViewById(
+                        R.id.text_view_location_header);
+                holder.collapseExpandIndicator = (ImageView) view.findViewById(
+                        R.id.image_view_location_expand_collapse);
+                view.setTag(holder);
+            } else {
+                holder = (ViewHolder) view.getTag();
+            }
+            String headerTitle = (String) getGroup(i);
+            holder.headerTextView.setText(headerTitle);
+            if (b) {
+                holder.collapseExpandIndicator.setImageResource(R.mipmap.ic_collapse);
+            } else {
+                holder.collapseExpandIndicator.setImageResource(R.mipmap.ic_expand);
+            }
+            return view;
+        }
+
+        @Override
+        public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
+            final SubItemsViewHolder holder;
+            if (view == null) {
+                LayoutInflater inflater = (LayoutInflater) mContext
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inflater.inflate(R.layout.delegate_location, null);
+                holder = new SubItemsViewHolder();
+                holder.bannerImageView = (ImageView) view.findViewById(R.id.location_image);
+                holder.addressTextView = (TextView) view.findViewById(R.id.address);
+                holder.phoneNumberTextView = (TextView) view.findViewById(
+                        R.id.phone_number_text_view);
+                holder.tollFreeTextView = (TextView) view.findViewById(R.id.toll_free_number);
+                holder.progressBar = (ProgressBar) view.findViewById(
+                        R.id.location_image_loading_progress_bar);
+                view.setTag(holder);
+            } else {
+                holder = (SubItemsViewHolder) view.getTag();
+            }
+            try {
+                holder.progressBar.setVisibility(View.VISIBLE);
+                Picasso picasso = Picasso.with(getActivity());
+                String url = "http:" + mItems.get(i).getString("photo").replaceAll(
+                        "\"", "").replaceAll(" ", "%20");
+                picasso.load(url).resize(900, 300).centerCrop().into(
+                        holder.bannerImageView, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                holder.progressBar.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onError() {
+                                holder.progressBar.setVisibility(View.GONE);
+                            }
+                        }
+                );
+                holder.addressTextView.setText(mItems.get(i).getString("address"));
+                holder.phoneNumberTextView.setText(null);
+                holder.phoneNumberTextView.append(getPhoneTitle("Phone: "));
+                holder.phoneNumberTextView.append(mItems.get(i).getString("phone"));
+                holder.tollFreeTextView.setText(null);
+                holder.tollFreeTextView.append(getPhoneTitle("Toll Free: "));
+                holder.tollFreeTextView.append(mItems.get(i).getString("toll_free"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return view;
+        }
+
+        @Override
+        public boolean isChildSelectable(int i, int i1) {
+            return false;
         }
     }
 
-    // custom class getting view data by giving view in constructor.
-    private static class CustomView extends RecyclerView.ViewHolder {
-
-        public ImageView locationImage;
-        public TextView locationTitle;
-        public TextView addressText;
-        public TextView phoneText;
-        public TextView tollFreeNumber;
-
-        public CustomView(View itemView) {
-            super(itemView);
-            locationImage = (ImageView) itemView.findViewById(R.id.location_image);
-            locationTitle = (TextView) itemView.findViewById(R.id.location_title);
-            addressText = (TextView) itemView.findViewById(R.id.address);
-            phoneText = (TextView) itemView.findViewById(R.id.phone_number_text_view);
-            tollFreeNumber = (TextView) itemView.findViewById(R.id.toll_free_number);
-        }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.health_actionbar, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.location_actionbar:
-        }
-        return true;
+    private SpannableString getPhoneTitle(String title) {
+        SpannableString ss1=  new SpannableString(title);
+        int colorPrimary = ContextCompat.getColor(
+                getContext().getApplicationContext(), R.color.colorPrimary);
+        ss1.setSpan(new StyleSpan(Typeface.BOLD), 0, ss1.length(), 0);
+        ss1.setSpan(new ForegroundColorSpan(colorPrimary), 0, ss1.length(),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return ss1;
     }
 }
