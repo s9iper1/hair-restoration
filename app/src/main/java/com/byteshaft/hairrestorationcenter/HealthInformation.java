@@ -3,10 +3,13 @@ package com.byteshaft.hairrestorationcenter;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.text.Html;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,8 +75,10 @@ public class HealthInformation extends Fragment implements
                 if (b) {
 
                 } else {
-                    HashMap<Integer, String> answer = new HashMap<>();
-                    answer.put(age.getId(), age.getText().toString());
+                    if (answersList.containsKey(age.getId())
+                            && age.toString().trim().isEmpty()) {
+                        answersList.remove(age.getId());
+                    }
                     answersList.put(age.getId(), age.getText().toString());
                     Log.i("TAG", String.valueOf(answersList));
                 }
@@ -153,10 +158,15 @@ public class HealthInformation extends Fragment implements
                 JSONArray jsonArray = jsonObject.getJSONArray("details");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject json = jsonArray.getJSONObject(i);
+                    Log.i("TAG", "Boolean " +json.getString("title").equals("Gender"));
                     if (!json.getString("title").equals("Age")) {
                         if (!json.getString("title").equals("Gender")) {
                             fieldData.add(json);
                             idsArray.add(json.getInt("id"));
+                            if (json.getInt("required") == 1) {
+                                requiredFields.add(String.valueOf(json.getInt("id")));
+                                Log.i("REQUIRED", "fields" + requiredFields);
+                            }
                         }
                     } else if (json.getString("title").equals("Age")) {
                         idsArray.add(json.getInt("id"));
@@ -164,18 +174,21 @@ public class HealthInformation extends Fragment implements
                         if (json.getInt("required") == 1) {
                             if (!requiredFields.contains(String.valueOf(json.getInt("id")))) {
                                 requiredFields.add(String.valueOf(json.getInt("id")));
+                                Log.e("TAG", "added age");
                             }
-                            Log.i("REQUIRED", "fields" + requiredFields);
-                        }
-                    } else if (json.getString("title").equals("Gender")) {
-                        idForGender = json.getInt("id");
-                        if (json.getInt("required") == 1) {
-//                            if (!requiredFields.contains(String.valueOf(json.getInt("id")))) {
-//                                requiredFields.add(String.valueOf(json.getInt("id")));
-//                            }
-                            Log.i("REQUIRED", "fields" + requiredFields);
                         }
                     }
+                    if (json.getString("title").equals("Gender")) {
+                        Log.e("GENDER", " gender");
+                        idForGender = json.getInt("id");
+                        if (json.getInt("required") == 1) {
+                            if (!requiredFields.contains(String.valueOf(json.getInt("id")))) {
+                                requiredFields.add(String.valueOf(json.getInt("id")));
+                                Log.e("TAG", "added gender");
+                            }
+                        }
+                    }
+                    Log.e("required fields ", "test "+ requiredFields);
                 }
             } else {
                 AppGlobals.alertDialog(getActivity(), "Not Found", "Nothing found");
@@ -196,14 +209,15 @@ public class HealthInformation extends Fragment implements
                 if (AppGlobals.sEntryId == 0) {
                     Toast.makeText(getActivity(), "Please try again process failed",
                             Toast.LENGTH_SHORT).show();
+                    MainActivity.loadFragment(new ConsultationFragment());
 //                    finish();
                 } else {
                     boolean result = validateEditText();
                     Log.i("boolean", " " + result);
-//                    if (result) {
-//                        mProgressDialog.show();
-//                        sendConsultationData(stringBuilder.toString());
-//                    }
+                    if (result) {
+                        mProgressDialog.show();
+                        sendConsultationData(stringBuilder.toString());
+                    }
                 }
                 break;
         }
@@ -232,14 +246,23 @@ public class HealthInformation extends Fragment implements
                 holder = (ViewHolder) convertView.getTag();
             }
             try {
-                StringBuilder title = new StringBuilder();
+                SpannableStringBuilder title = new SpannableStringBuilder();
                 if (fieldsDetail.get(position).getInt("required") == 1) {
-                    String required = "<font color='#EE0000'>* </font>";
-                    title.append(Html.fromHtml(required)).append(fieldsDetail.get(position).getString("title"));
+                    String red = "* ";
+                    SpannableString redSpannable= new SpannableString(red);
+                    redSpannable.setSpan(new ForegroundColorSpan(Color.RED), 0, red.length(), 0);
+                    title.append(redSpannable);
+                    String white = fieldsDetail.get(position).getString("title");
+                    SpannableString whiteSpannable= new SpannableString(white);
+                    whiteSpannable.setSpan(new ForegroundColorSpan(Color.WHITE), 0, white.length(), 0);
+                    title.append(whiteSpannable);
                 } else {
-                    title.append(fieldsDetail.get(position).getString("title"));
+                    String white = fieldsDetail.get(position).getString("title");
+                    SpannableString whiteSpannable= new SpannableString(white);
+                    whiteSpannable.setSpan(new ForegroundColorSpan(Color.WHITE), 0, white.length(), 0);
+                    title.append(whiteSpannable);
                 }
-                holder.title.setText(title);
+                holder.title.setText(title, TextView.BufferType.SPANNABLE);
                 holder.editText.setId(fieldsDetail.get(position).getInt("id"));
                 holder.editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
@@ -248,16 +271,14 @@ public class HealthInformation extends Fragment implements
 
                         } else {
                             try {
-                                Log.i(holder.editText.getText().toString(), String.valueOf(fieldsDetail.get(position).getInt("id")));
-                                answersList.put(fieldsDetail.get(position).getInt("id"), holder.editText.getText().toString());
-                                if (fieldsDetail.get(position).getInt("required") == 1) {
-                                    if (!requiredFields.contains(String.valueOf(fieldsDetail.
-                                            get(position).getInt("id")))) {
-                                        requiredFields.add(String.valueOf(fieldsDetail.
-                                                get(position).getInt("id")));
+                                if (answersList.containsKey(fieldsDetail.get(position).getInt("id"))
+                                        && holder.editText.toString().trim().isEmpty()) {
+                                    answersList.remove(fieldsDetail.get(position).getInt("id"));
+                                } else {
+                                    if (!holder.editText.getText().toString().trim().isEmpty()) {
+                                        answersList.put(fieldsDetail.get(position).getInt("id"), holder.editText.getText().toString());
                                     }
-                                    Log.i("REQUIRED", "fields" + requiredFields);
-                                }
+                                    }
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -284,7 +305,7 @@ public class HealthInformation extends Fragment implements
         Log.i("TAG", "array" + answersList.size());
         Log.i("TAG", "required fields" + requiredFields);
         for (int id : idsArray) {
-            if (answersList.size() >= requiredFields.size()) {
+            if (answersList.size() >= (requiredFields.size()-1)) {
                 if (answersList.containsKey(id)) {
                     value = true;
                     stringBuilder.append(String.format("[%d]=%s&", id, answersList.get(id)));

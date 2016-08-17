@@ -42,6 +42,8 @@ public class AppGlobals extends Application {
     public static int sEntryId = 0;
     public static final String CONSULTATION_STEP_2 = String.format("%sconsultation_step2.php", BASE_URL);
     public static boolean sConsultationSuccess = false;
+    public static boolean sIsInternetAvailable = false;
+    public static Activity sActivity;
 
     @Override
     public void onCreate() {

@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
@@ -31,6 +32,7 @@ import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
+import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 import com.byteshaft.requests.FormData;
 import com.byteshaft.requests.HttpRequest;
 import com.mikhaellopez.circularimageview.CircularImageView;
@@ -98,15 +100,6 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        selectImage = false;
-        if (AppGlobals.sConsultationSuccess) {
-            MainActivity.loadFragment(new EducationFragment());
-        }
-    }
-
-    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.front_side:
@@ -159,15 +152,14 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 }
                 break;
             case R.id.upload_button:
-//                startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
+//                MainActivity.loadFragment(new HealthInformation());
                 if (imagesHashMap.size() < 5) {
                     Toast.makeText(getActivity(), "Please capture all the images", Toast.LENGTH_SHORT).show();
                 } else {
                     if (!sUploaded) {
-                        uploadImages();
+                        new CheckInternet().execute();
                     } else {
                         MainActivity.loadFragment(new HealthInformation());
-//                        startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
                     }
                 }
         }
@@ -406,9 +398,58 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
             uploaded.add(file.getAbsolutePath());
             mProgressBar.setProgress(0);
         }
-        uploadDetails.setText(uploaded.size()+"/"+imagesHashMap.size());
-        double progress = (l/(double)l1)*100;
+        uploadDetails.setText(uploaded.size() + "/" + imagesHashMap.size());
+        double progress = (l / (double) l1) * 100;
         mProgressBar.setProgress((int) progress);
-        percentAge.setText((int)progress+"/100");
+        percentAge.setText((int) progress + "/100");
+    }
+
+    class CheckInternet extends AsyncTask<String, String, Boolean> {
+
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Loading...");
+            progressDialog.setIndeterminate(false);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+            boolean isInternetAvailable = false;
+            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                isInternetAvailable = true;
+            }
+
+            return isInternetAvailable;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            progressDialog.dismiss();
+            if (aBoolean) {
+                uploadImages();
+            } else {
+                alertDialog(getActivity(), "No internet", "Please check your internet connection");
+            }
+        }
+    }
+
+    public static void alertDialog(Activity activity, String title, String msg) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+        alertDialogBuilder.setTitle(title);
+        alertDialogBuilder.setMessage(msg).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+                MainActivity.getInstance().finish();
+            }
+        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 }
