@@ -3,12 +3,15 @@ package com.byteshaft.hairrestorationcenter.fragments;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
@@ -16,9 +19,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,6 +32,7 @@ import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
+import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 import com.byteshaft.requests.FormData;
 import com.byteshaft.requests.HttpRequest;
 import com.mikhaellopez.circularimageview.CircularImageView;
@@ -69,6 +70,8 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     private FrameLayout progressLayout;
     private TextView percentAge;
     private ProgressDialog progressDialog;
+    public static boolean sUploaded = false;
+    private boolean selectImage = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -97,14 +100,6 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (AppGlobals.sConsultationSuccess) {
-            MainActivity.loadFragment(new EducationFragment());
-        }
-    }
-
-    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.front_side:
@@ -113,7 +108,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     removeItemFromArray(requestCodes[0], mFrontSide);
                 } else {
                     pressedButtonId = view.getId();
-                    dispatchTakePictureIntent(requestCodes[0]);
+                    selectImage(requestCodes[0]);
                 }
                 break;
             case R.id.left_side:
@@ -122,7 +117,8 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     removeItemFromArray(requestCodes[1], mLeftSide);
                 } else {
                     pressedButtonId = view.getId();
-                    dispatchTakePictureIntent(requestCodes[1]);
+                    selectImage(requestCodes[1]);
+//                    dispatchTakePictureIntent(requestCodes[1]);
                 }
                 break;
             case R.id.right_side:
@@ -131,7 +127,8 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     removeItemFromArray(requestCodes[2], mRightSide);
                 } else {
                     pressedButtonId = view.getId();
-                    dispatchTakePictureIntent(requestCodes[2]);
+                    selectImage(requestCodes[2]);
+//                    dispatchTakePictureIntent(requestCodes[2]);
                 }
                 break;
             case R.id.top_side:
@@ -140,7 +137,8 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     removeItemFromArray(requestCodes[3], mTopSide);
                 } else {
                     pressedButtonId = view.getId();
-                    dispatchTakePictureIntent(requestCodes[3]);
+                    selectImage(requestCodes[3]);
+//                    dispatchTakePictureIntent(requestCodes[3]);
                 }
                 break;
             case R.id.back_side:
@@ -149,18 +147,52 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     removeItemFromArray(requestCodes[4], mBackSide);
                 } else {
                     pressedButtonId = view.getId();
-                    dispatchTakePictureIntent(requestCodes[4]);
+                    selectImage(requestCodes[4]);
+//
                 }
                 break;
             case R.id.upload_button:
-//                startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
+//                MainActivity.loadFragment(new HealthInformation());
                 if (imagesHashMap.size() < 5) {
-                    Toast.makeText(getActivity(), "please capture all the images", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Please capture all the images", Toast.LENGTH_SHORT).show();
                 } else {
-                    uploadImages();
+                    if (!sUploaded) {
+                        new CheckInternet().execute();
+                    } else {
+                        MainActivity.loadFragment(new HealthInformation());
+                    }
                 }
         }
     }
+
+    // Dialog with option to capture image or choose from gallery
+    private void selectImage(final int id) {
+        final CharSequence[] items = {"Take Photo", "Choose from Library", "Cancel"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Add Photo!");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                if (items[item].equals("Take Photo")) {
+                    dispatchTakePictureIntent(id);
+                } else if (items[item].equals("Choose from Library")) {
+                    Intent intent = new Intent(
+                            Intent.ACTION_PICK,
+                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent.setType("image/*");
+                    selectImage = true;
+                    startActivityForResult(
+                            Intent.createChooser(intent, "Select File"),
+                            id);
+                } else if (items[item].equals("Cancel")) {
+                    dialog.dismiss();
+                }
+
+            }
+        });
+        builder.show();
+    }
+
 
     private void removeItemFromArray(final int item, final CircularImageView circularImageView) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
@@ -207,8 +239,25 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (contains(requestCodes, requestCode) && resultCode == Activity.RESULT_OK) {
+        if (selectImage && resultCode == Activity.RESULT_OK) {
+            Log.i("Consultation", "image selected");
+            Uri selectedImageUri = data.getData();
+            String[] projection = {MediaStore.MediaColumns.DATA};
+            CursorLoader cursorLoader = new CursorLoader(getActivity(), selectedImageUri, projection, null, null,
+                    null);
+            Cursor cursor = cursorLoader.loadInBackground();
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+            cursor.moveToFirst();
+            String selectedImagePath = cursor.getString(column_index);
             if (!imagesHashMap.containsKey(requestCode)) {
+                imagesHashMap.put(requestCode, selectedImagePath);
+                setImageOnImageView(new File(selectedImagePath));
+            }
+            selectImage = false;
+
+        }else if (contains(requestCodes, requestCode) && resultCode == Activity.RESULT_OK) {
+            if (!imagesHashMap.containsKey(requestCode)) {
+                Log.i("Consultation", "image captured");
                 imagesHashMap.put(requestCode, filePath);
                 setImageOnImageView(new File(filePath));
             }
@@ -254,7 +303,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
     }
 
     private void setImage(final CircularImageView image, File file) {
-        Picasso.with(getActivity()).load(file).resize(150, 150).centerCrop().into(new Target(){
+        Picasso.with(getActivity()).load(file).resize(80, 80).centerCrop().into(new Target(){
 
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -263,7 +312,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
 
             @Override
             public void onBitmapFailed(final Drawable errorDrawable) {
-                Log.d("TAG", "FAILED");
+                Log.e("TAG", "FAILED");
             }
 
             @Override
@@ -333,7 +382,8 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     if (jsonObject.getString("Message").equals("Successfully")) {
                         JSONObject jsonDetails = jsonObject.getJSONObject("details");
                         AppGlobals.sEntryId = jsonDetails.getInt("entry_id");
-                        startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
+                        MainActivity.loadFragment(new HealthInformation());
+//                        startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -348,23 +398,58 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
             uploaded.add(file.getAbsolutePath());
             mProgressBar.setProgress(0);
         }
-        uploadDetails.setText(uploaded.size()+"/"+imagesHashMap.size());
-        double progress = (l/(double)l1)*100;
+        uploadDetails.setText(uploaded.size() + "/" + imagesHashMap.size());
+        double progress = (l / (double) l1) * 100;
         mProgressBar.setProgress((int) progress);
-        percentAge.setText((int)progress+"/100");
+        percentAge.setText((int) progress + "/100");
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.consultation_actionbar, menu);
-    }
+    class CheckInternet extends AsyncTask<String, String, Boolean> {
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.consultation_actionbar:
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Loading...");
+            progressDialog.setIndeterminate(false);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
         }
-        return true;
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+            boolean isInternetAvailable = false;
+            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                isInternetAvailable = true;
+            }
+
+            return isInternetAvailable;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            progressDialog.dismiss();
+            if (aBoolean) {
+                uploadImages();
+            } else {
+                alertDialog(getActivity(), "No internet", "Please check your internet connection");
+            }
+        }
+    }
+
+    public static void alertDialog(Activity activity, String title, String msg) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+        alertDialogBuilder.setTitle(title);
+        alertDialogBuilder.setMessage(msg).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+                MainActivity.getInstance().finish();
+            }
+        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 }

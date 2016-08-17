@@ -42,8 +42,9 @@ public class MainActivity extends AppCompatActivity
         if (!AppGlobals.isUserLoggedIn()) {
             startActivity(new Intent(AppGlobals.getContext(), LoginActivity.class));
         }
-        setContentView(R.layout.activity_main);
         loadFragment(new EducationFragment());
+        setContentView(R.layout.activity_main);
+        AppGlobals.sActivity = MainActivity.this;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -57,7 +58,6 @@ public class MainActivity extends AppCompatActivity
         navigationView.setItemIconTintList(null);
     }
 
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
+        ConsultationFragment.sUploaded = false;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

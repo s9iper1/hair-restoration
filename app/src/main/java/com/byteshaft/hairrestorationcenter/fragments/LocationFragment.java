@@ -43,7 +43,8 @@ public class LocationFragment extends Fragment implements
     private ProgressDialog mProgressDialog;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(
+            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBaseView = inflater.inflate(R.layout.location_fragment, container, false);
         setHasOptionsMenu(true);
         mExpandableListView = (ExpandableListView) mBaseView.findViewById(R.id.list_view_locations);
@@ -54,13 +55,15 @@ public class LocationFragment extends Fragment implements
     }
 
     private void handleCollapseAndExpand() {
-        mExpandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+        mExpandableListView.setOnGroupExpandListener(
+                new ExpandableListView.OnGroupExpandListener() {
             @Override
             public void onGroupExpand(int i) {
 
             }
         });
-        mExpandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+        mExpandableListView.setOnGroupCollapseListener(
+                new ExpandableListView.OnGroupCollapseListener() {
             @Override
             public void onGroupCollapse(int i) {
 

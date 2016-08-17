@@ -6,15 +6,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
@@ -46,14 +44,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         sInstance = this;
         mEmail = (EditText) findViewById(R.id.email_address);
         mPassword = (EditText) findViewById(R.id.password);
-
         mLoginButton = (Button) findViewById(R.id.login);
         mRegisterButton = (Button) findViewById(R.id.register);
         mLoginButton.setOnClickListener(this);
         mRegisterButton.setOnClickListener(this);
-
         mForgotPasswordTextView = (TextView) findViewById(R.id.tv_forgot_password);
         mForgotPasswordTextView.setOnClickListener(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        MainActivity.getInstance().finish();
     }
 
     public boolean validate() {
@@ -160,21 +163,5 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.signin_actionbar, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.health_information:
-                Toast.makeText(LoginActivity.this, "hello", Toast.LENGTH_SHORT).show();
-        }
-        return true;
     }
 }

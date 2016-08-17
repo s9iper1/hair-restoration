@@ -3,14 +3,15 @@ package com.byteshaft.hairrestorationcenter;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -21,8 +22,9 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
+import com.byteshaft.hairrestorationcenter.fragments.ConsultationFragment;
+import com.byteshaft.hairrestorationcenter.fragments.EducationFragment;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.requests.HttpRequest;
@@ -35,7 +37,7 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class HealthInformation extends AppCompatActivity implements
+public class HealthInformation extends Fragment implements
         HttpRequest.OnReadyStateChangeListener, View.OnClickListener {
 
     private Spinner gender;
@@ -51,30 +53,32 @@ public class HealthInformation extends AppCompatActivity implements
     private ArrayList<String> requiredFields;
     private int idForGender = 2;
     private static boolean sPostRequest = false;
+    private View mBaseView;
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.health_information);
-        Log.i("KEY", "" + AppGlobals.sEntryId);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mBaseView = inflater.inflate(R.layout.health_information, container, false);
         fieldData = new ArrayList<>();
         idsArray = new ArrayList<>();
         answersList = new HashMap<>();
         requiredFields = new ArrayList<>();
-        age = (EditText) findViewById(R.id.age);
-        gender = (Spinner) findViewById(R.id.gender);
-        submitButton = (Button) findViewById(R.id.submit_answers);
+        age = (EditText) mBaseView.findViewById(R.id.age);
+        gender = (Spinner) mBaseView.findViewById(R.id.gender);
+        submitButton = (Button) mBaseView.findViewById(R.id.submit_answers);
         submitButton.setOnClickListener(this);
-        mListView = (ListView) findViewById(R.id.fields_list_view);
-        mProgressDialog = Helpers.getProgressDialog(HealthInformation.this);
+        mListView = (ListView) mBaseView.findViewById(R.id.fields_list_view);
+        mProgressDialog = Helpers.getProgressDialog(getActivity());
         age.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
 
                 } else {
-                    HashMap<Integer, String> answer = new HashMap<>();
-                    answer.put(age.getId(), age.getText().toString());
+                    if (answersList.containsKey(age.getId())
+                            && age.toString().trim().isEmpty()) {
+                        answersList.remove(age.getId());
+                    }
                     answersList.put(age.getId(), age.getText().toString());
                     Log.i("TAG", String.valueOf(answersList));
                 }
@@ -92,13 +96,15 @@ public class HealthInformation extends AppCompatActivity implements
             }
         });
         getFieldsDetails();
+        return mBaseView;
     }
+
 
 
     private void getFieldsDetails() {
         sPostRequest = false;
         mProgressDialog.show();
-        mRequest = new HttpRequest(getApplicationContext());
+        mRequest = new HttpRequest(getActivity().getApplicationContext());
         mRequest.setOnReadyStateChangeListener(this);
         mRequest.open("GET", AppGlobals.QUESTION_LIST);
         mRequest.send();
@@ -118,14 +124,15 @@ public class HealthInformation extends AppCompatActivity implements
                                 JSONObject jsonObject = new JSONObject(mRequest.getResponseText());
                                 if (jsonObject.getString("Message").equals("Successfully")) {
 
-                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(HealthInformation.this);
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                                     alertDialogBuilder.setTitle("Success");
                                     alertDialogBuilder.setMessage("Your details have uploaded successfully.")
                                             .setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
                                             AppGlobals.sConsultationSuccess = true;
+                                            ConsultationFragment.sUploaded = false;
                                             dialog.dismiss();
-                                            finish();
+                                            MainActivity.loadFragment(new EducationFragment());
                                         }
                                     });
                                     AlertDialog alertDialog = alertDialogBuilder.create();
@@ -151,26 +158,46 @@ public class HealthInformation extends AppCompatActivity implements
                 JSONArray jsonArray = jsonObject.getJSONArray("details");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject json = jsonArray.getJSONObject(i);
+                    Log.i("TAG", "Boolean " +json.getString("title").equals("Gender"));
                     if (!json.getString("title").equals("Age")) {
                         if (!json.getString("title").equals("Gender")) {
                             fieldData.add(json);
                             idsArray.add(json.getInt("id"));
+                            if (json.getInt("required") == 1) {
+                                requiredFields.add(String.valueOf(json.getInt("id")));
+                                Log.i("REQUIRED", "fields" + requiredFields);
+                            }
                         }
                     } else if (json.getString("title").equals("Age")) {
                         idsArray.add(json.getInt("id"));
                         age.setId(json.getInt("id"));
-                    } else if (json.getString("title").equals("Gender")) {
-                        idForGender = json.getInt("id");
+                        if (json.getInt("required") == 1) {
+                            if (!requiredFields.contains(String.valueOf(json.getInt("id")))) {
+                                requiredFields.add(String.valueOf(json.getInt("id")));
+                                Log.e("TAG", "added age");
+                            }
+                        }
                     }
+                    if (json.getString("title").equals("Gender")) {
+                        Log.e("GENDER", " gender");
+                        idForGender = json.getInt("id");
+                        if (json.getInt("required") == 1) {
+                            if (!requiredFields.contains(String.valueOf(json.getInt("id")))) {
+                                requiredFields.add(String.valueOf(json.getInt("id")));
+                                Log.e("TAG", "added gender");
+                            }
+                        }
+                    }
+                    Log.e("required fields ", "test "+ requiredFields);
                 }
             } else {
-                AppGlobals.alertDialog(HealthInformation.this, "Not Found", "Nothing found");
+                AppGlobals.alertDialog(getActivity(), "Not Found", "Nothing found");
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
         Log.i("TAG", String.valueOf(fieldData));
-        Adapter adapter = new Adapter(getApplicationContext(), fieldData, R.layout.delegate_consultation_fields);
+        Adapter adapter = new Adapter(getActivity().getApplicationContext(), fieldData, R.layout.delegate_consultation_fields);
         mListView.setAdapter(adapter);
     }
 
@@ -180,9 +207,10 @@ public class HealthInformation extends AppCompatActivity implements
             case R.id.submit_answers:
                 submitButton.requestFocus();
                 if (AppGlobals.sEntryId == 0) {
-                    Toast.makeText(HealthInformation.this, "please try again process failed",
+                    Toast.makeText(getActivity(), "Please try again process failed",
                             Toast.LENGTH_SHORT).show();
-                    finish();
+                    MainActivity.loadFragment(new ConsultationFragment());
+//                    finish();
                 } else {
                     boolean result = validateEditText();
                     Log.i("boolean", " " + result);
@@ -208,7 +236,7 @@ public class HealthInformation extends AppCompatActivity implements
         public View getView(final int position, View convertView, ViewGroup parent) {
             final ViewHolder holder;
             if (convertView == null) {
-                LayoutInflater inflater = getLayoutInflater();
+                LayoutInflater inflater = getActivity().getLayoutInflater();
                 convertView = inflater.inflate(R.layout.delegate_consultation_fields, parent, false);
                 holder = new ViewHolder();
                 holder.title = (TextView) convertView.findViewById(R.id.field_title);
@@ -218,13 +246,23 @@ public class HealthInformation extends AppCompatActivity implements
                 holder = (ViewHolder) convertView.getTag();
             }
             try {
-                StringBuilder title = new StringBuilder();
+                SpannableStringBuilder title = new SpannableStringBuilder();
                 if (fieldsDetail.get(position).getInt("required") == 1) {
-                    title.append("* ").append(fieldsDetail.get(position).getString("title"));
+                    String red = "* ";
+                    SpannableString redSpannable= new SpannableString(red);
+                    redSpannable.setSpan(new ForegroundColorSpan(Color.RED), 0, red.length(), 0);
+                    title.append(redSpannable);
+                    String white = fieldsDetail.get(position).getString("title");
+                    SpannableString whiteSpannable= new SpannableString(white);
+                    whiteSpannable.setSpan(new ForegroundColorSpan(Color.WHITE), 0, white.length(), 0);
+                    title.append(whiteSpannable);
                 } else {
-                    title.append(fieldsDetail.get(position).getString("title"));
+                    String white = fieldsDetail.get(position).getString("title");
+                    SpannableString whiteSpannable= new SpannableString(white);
+                    whiteSpannable.setSpan(new ForegroundColorSpan(Color.WHITE), 0, white.length(), 0);
+                    title.append(whiteSpannable);
                 }
-                holder.title.setText(title);
+                holder.title.setText(title, TextView.BufferType.SPANNABLE);
                 holder.editText.setId(fieldsDetail.get(position).getInt("id"));
                 holder.editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
@@ -233,16 +271,14 @@ public class HealthInformation extends AppCompatActivity implements
 
                         } else {
                             try {
-                                Log.i(holder.editText.getText().toString(), String.valueOf(fieldsDetail.get(position).getInt("id")));
-                                answersList.put(fieldsDetail.get(position).getInt("id"), holder.editText.getText().toString());
-                                if (fieldsDetail.get(position).getInt("required") == 1) {
-                                    if (!requiredFields.contains(String.valueOf(fieldsDetail.
-                                            get(position).getInt("id")))) {
-                                        requiredFields.add(String.valueOf(fieldsDetail.
-                                                get(position).getInt("id")));
+                                if (answersList.containsKey(fieldsDetail.get(position).getInt("id"))
+                                        && holder.editText.toString().trim().isEmpty()) {
+                                    answersList.remove(fieldsDetail.get(position).getInt("id"));
+                                } else {
+                                    if (!holder.editText.getText().toString().trim().isEmpty()) {
+                                        answersList.put(fieldsDetail.get(position).getInt("id"), holder.editText.getText().toString());
                                     }
-                                    Log.i("REQUIRED", "fields" + requiredFields);
-                                }
+                                    }
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -269,17 +305,18 @@ public class HealthInformation extends AppCompatActivity implements
         Log.i("TAG", "array" + answersList.size());
         Log.i("TAG", "required fields" + requiredFields);
         for (int id : idsArray) {
-            if (requiredFields.size() == 4 && answersList.size() >= 4) {
+            if (answersList.size() >= (requiredFields.size()-1)) {
                 if (answersList.containsKey(id)) {
                     value = true;
                     stringBuilder.append(String.format("[%d]=%s&", id, answersList.get(id)));
                 }
-            } else if (requiredFields.size() < 4 && answersList.size() < 4) {
+            } else if (answersList.size() < requiredFields.size()) {
                 value = false;
-                Toast.makeText(HealthInformation.this, "All required fields must be filled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "All required fields must be filled", Toast.LENGTH_SHORT).show();
                 break;
             } else {
                 value = false;
+                Toast.makeText(getActivity(), "All required fields must be filled", Toast.LENGTH_SHORT).show();
                 break;
             }
         }
@@ -297,25 +334,9 @@ public class HealthInformation extends AppCompatActivity implements
 
     private void sendConsultationData(String data) {
         sPostRequest = true;
-        mRequest = new HttpRequest(getApplicationContext());
+        mRequest = new HttpRequest(getActivity().getApplicationContext());
         mRequest.setOnReadyStateChangeListener(this);
         mRequest.open("POST", AppGlobals.CONSULTATION_STEP_2);
         mRequest.send(data);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.health_actionbar, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.health_information:
-                Toast.makeText(HealthInformation.this, "hello", Toast.LENGTH_SHORT).show();
-        }
-        return true;
     }
 }
