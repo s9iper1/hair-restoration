@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.fragments.ConsultationFragment;
+import com.byteshaft.hairrestorationcenter.fragments.EducationFragment;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.requests.HttpRequest;
@@ -125,7 +127,7 @@ public class HealthInformation extends Fragment implements
                                             AppGlobals.sConsultationSuccess = true;
                                             ConsultationFragment.sUploaded = false;
                                             dialog.dismiss();
-//                                            finish();
+                                            MainActivity.loadFragment(new EducationFragment());
                                         }
                                     });
                                     AlertDialog alertDialog = alertDialogBuilder.create();
@@ -168,9 +170,9 @@ public class HealthInformation extends Fragment implements
                     } else if (json.getString("title").equals("Gender")) {
                         idForGender = json.getInt("id");
                         if (json.getInt("required") == 1) {
-                            if (!requiredFields.contains(String.valueOf(json.getInt("id")))) {
-                                requiredFields.add(String.valueOf(json.getInt("id")));
-                            }
+//                            if (!requiredFields.contains(String.valueOf(json.getInt("id")))) {
+//                                requiredFields.add(String.valueOf(json.getInt("id")));
+//                            }
                             Log.i("REQUIRED", "fields" + requiredFields);
                         }
                     }
@@ -192,16 +194,16 @@ public class HealthInformation extends Fragment implements
             case R.id.submit_answers:
                 submitButton.requestFocus();
                 if (AppGlobals.sEntryId == 0) {
-                    Toast.makeText(getActivity(), "please try again process failed",
+                    Toast.makeText(getActivity(), "Please try again process failed",
                             Toast.LENGTH_SHORT).show();
 //                    finish();
                 } else {
                     boolean result = validateEditText();
                     Log.i("boolean", " " + result);
-                    if (result) {
-                        mProgressDialog.show();
-                        sendConsultationData(stringBuilder.toString());
-                    }
+//                    if (result) {
+//                        mProgressDialog.show();
+//                        sendConsultationData(stringBuilder.toString());
+//                    }
                 }
                 break;
         }
@@ -232,7 +234,8 @@ public class HealthInformation extends Fragment implements
             try {
                 StringBuilder title = new StringBuilder();
                 if (fieldsDetail.get(position).getInt("required") == 1) {
-                    title.append("* ").append(fieldsDetail.get(position).getString("title"));
+                    String required = "<font color='#EE0000'>* </font>";
+                    title.append(Html.fromHtml(required)).append(fieldsDetail.get(position).getString("title"));
                 } else {
                     title.append(fieldsDetail.get(position).getString("title"));
                 }
@@ -281,17 +284,18 @@ public class HealthInformation extends Fragment implements
         Log.i("TAG", "array" + answersList.size());
         Log.i("TAG", "required fields" + requiredFields);
         for (int id : idsArray) {
-            if (requiredFields.size() > 3 && answersList.size() >= 4) {
+            if (answersList.size() >= requiredFields.size()) {
                 if (answersList.containsKey(id)) {
                     value = true;
                     stringBuilder.append(String.format("[%d]=%s&", id, answersList.get(id)));
                 }
-            } else if (requiredFields.size() < 4 && answersList.size() < 4) {
+            } else if (answersList.size() < requiredFields.size()) {
                 value = false;
                 Toast.makeText(getActivity(), "All required fields must be filled", Toast.LENGTH_SHORT).show();
                 break;
             } else {
                 value = false;
+                Toast.makeText(getActivity(), "All required fields must be filled", Toast.LENGTH_SHORT).show();
                 break;
             }
         }
