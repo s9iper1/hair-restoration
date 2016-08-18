@@ -380,7 +380,7 @@ public class LocationFragment extends Fragment implements
     private SpannableString getPhoneTitle(String title) {
         SpannableString ss1=  new SpannableString(title);
         int colorPrimary = ContextCompat.getColor(
-                getContext().getApplicationContext(), R.color.phone_color);
+                getContext().getApplicationContext(), R.color.colorPrimary);
         ss1.setSpan(new StyleSpan(Typeface.BOLD), 0, ss1.length(), 0);
         ss1.setSpan(new ForegroundColorSpan(colorPrimary), 0, ss1.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

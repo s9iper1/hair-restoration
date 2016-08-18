@@ -11,6 +11,6 @@
         <item>Female</item>
     </string-array>
 
-    <string name="terms_and_condition_text">I accept the terms and conditions</string>
+    <string name="terms_and_condition_text">I agree to the terms and conditions</string>
     <string name="terms_and_condition"><u>terms and conditions</u></string>
 </resources>

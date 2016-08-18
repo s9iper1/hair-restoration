@@ -1,15 +1,19 @@
 package com.byteshaft.hairrestorationcenter.fragments;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
@@ -72,7 +76,7 @@ public class AboutUsFragment extends Fragment {
                     e.printStackTrace();
                 }
             }
-            return null;
+            return aboutUs;
         }
 
         @Override
@@ -80,8 +84,31 @@ public class AboutUsFragment extends Fragment {
             super.onPostExecute(s);
             if (foreground) {
                 progressDialog.dismiss();
-                mAboutUsTextView.setText(Html.fromHtml(aboutUs));
+                if (s != null) {
+                    mAboutUsTextView.setText(Html.fromHtml(s));
+                } else {
+                    alertDialog(getActivity(), "No internet", "Please check your internet connection");
+                }
             }
         }
+    }
+
+    public void alertDialog(Activity activity, String title, String msg) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+        alertDialogBuilder.setTitle(title);
+        alertDialogBuilder.setMessage(msg).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+                MainActivity.getInstance().finish();
+            }
+        });
+        alertDialogBuilder.setNegativeButton("Retry", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                new AboutUsTask().execute();
+            }
+        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 }

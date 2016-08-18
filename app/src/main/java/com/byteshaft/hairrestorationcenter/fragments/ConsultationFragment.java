@@ -32,6 +32,7 @@ import android.widget.Toast;
 import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
+import com.byteshaft.hairrestorationcenter.utils.RotateUtil;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 import com.byteshaft.requests.FormData;
@@ -182,6 +183,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
             @Override
             public void onClick(DialogInterface dialog, int item) {
                 if (items[item].equals("Take Photo")) {
+                    selectImage = false;
                     dispatchTakePictureIntent(id);
                 } else if (items[item].equals("Choose from Library")) {
                     Intent intent = new Intent(
@@ -316,7 +318,9 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
         int imageHeight = bitmap.getHeight();
         int newWidth = image.getWidth();
         int newHeight = (imageHeight * newWidth)/ imageWidth;
-        image.setImageBitmap(Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false));
+        Bitmap myBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false);
+        Bitmap orientedBitmap = RotateUtil.rotateBitmap(file.getAbsolutePath(), myBitmap);
+        image.setImageBitmap(orientedBitmap);
     }
 
 
