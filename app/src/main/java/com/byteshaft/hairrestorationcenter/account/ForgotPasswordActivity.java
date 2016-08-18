@@ -1,6 +1,5 @@
 package com.byteshaft.hairrestorationcenter.account;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -77,7 +76,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 try {
                     System.out.println(jsonObject == null);
                     jsonObject = WebServiceHelpers.forgotPassword(mEmailString);
-                    Log.e("TAG", String.valueOf(jsonObject));
+                    Log.e("JSON","JSon"+ String.valueOf(jsonObject));
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
@@ -94,7 +93,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
                 }else if (jsonObject.getString("Message").equals("Successfully")) {
                     Toast.makeText(ForgotPasswordActivity.this, "Please check your mail for new password", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                    finish();
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

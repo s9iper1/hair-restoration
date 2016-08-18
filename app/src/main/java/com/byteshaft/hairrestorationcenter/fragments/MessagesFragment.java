@@ -108,7 +108,7 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            Toast.makeText(getActivity(), "sent", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AppGlobals.getContext(), "sent", Toast.LENGTH_SHORT).show();
             mMessageBody.setEnabled(true);
             arrayAdapter = new ChatArrayAdapter(AppGlobals.getContext(), R.layout.delegate_chat, messagesArray);
             list.setAdapter(arrayAdapter);

@@ -29,7 +29,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.byteshaft.hairrestorationcenter.HealthInformation;
 import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
@@ -153,6 +152,11 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 break;
             case R.id.upload_button:
 //                MainActivity.loadFragment(new HealthInformation());
+//                FragmentManager fragmentManager = getFragmentManager();
+//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                fragmentTransaction.replace(R.id.container, new HealthInformation());
+//                fragmentTransaction.addToBackStack("Health_info");
+//                fragmentTransaction.commit();
                 if (imagesHashMap.size() < 5) {
                     Toast.makeText(getActivity(), "Please capture all the images", Toast.LENGTH_SHORT).show();
                 } else {

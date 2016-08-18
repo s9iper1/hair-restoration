@@ -24,6 +24,7 @@ public class AboutUsFragment extends Fragment {
     private View mBaseView;
     private TextView mAboutUsTextView;
     private String aboutUs;
+    private boolean foreground = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -32,6 +33,18 @@ public class AboutUsFragment extends Fragment {
         mAboutUsTextView = (TextView) mBaseView.findViewById(R.id.textview_about_us);
         new AboutUsTask().execute();
         return mBaseView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        foreground = true;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        foreground = false;
     }
 
     private class AboutUsTask extends AsyncTask<String, String, String> {
@@ -65,8 +78,10 @@ public class AboutUsFragment extends Fragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            progressDialog.dismiss();
-            mAboutUsTextView.setText(Html.fromHtml(aboutUs));
+            if (foreground) {
+                progressDialog.dismiss();
+                mAboutUsTextView.setText(Html.fromHtml(aboutUs));
+            }
         }
     }
 }

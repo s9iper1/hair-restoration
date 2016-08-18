@@ -1,9 +1,11 @@
-package com.byteshaft.hairrestorationcenter;
+package com.byteshaft.hairrestorationcenter.fragments;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -17,16 +19,20 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.byteshaft.hairrestorationcenter.fragments.ConsultationFragment;
-import com.byteshaft.hairrestorationcenter.fragments.EducationFragment;
+import com.byteshaft.hairrestorationcenter.MainActivity;
+import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
+import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 import com.byteshaft.requests.HttpRequest;
 
 import org.json.JSONArray;
@@ -36,6 +42,7 @@ import org.json.JSONObject;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class HealthInformation extends Fragment implements
         HttpRequest.OnReadyStateChangeListener, View.OnClickListener {
@@ -55,6 +62,9 @@ public class HealthInformation extends Fragment implements
     private static boolean sPostRequest = false;
     private View mBaseView;
 
+    private List<String> checkBoxAnswer;
+    private LinearLayout mLinearlayout;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,9 +73,11 @@ public class HealthInformation extends Fragment implements
         idsArray = new ArrayList<>();
         answersList = new HashMap<>();
         requiredFields = new ArrayList<>();
+        checkBoxAnswer = new ArrayList<>();
         age = (EditText) mBaseView.findViewById(R.id.age);
         gender = (Spinner) mBaseView.findViewById(R.id.gender);
         submitButton = (Button) mBaseView.findViewById(R.id.submit_answers);
+        mLinearlayout = (LinearLayout) mBaseView.findViewById(R.id.main_layout);
         submitButton.setOnClickListener(this);
         mListView = (ListView) mBaseView.findViewById(R.id.fields_list_view);
         mProgressDialog = Helpers.getProgressDialog(getActivity());
@@ -78,9 +90,10 @@ public class HealthInformation extends Fragment implements
                     if (answersList.containsKey(age.getId())
                             && age.toString().trim().isEmpty()) {
                         answersList.remove(age.getId());
+                    } else {
+                        answersList.put(age.getId(), age.getText().toString());
+                        Log.i("TAG", String.valueOf(answersList));
                     }
-                    answersList.put(age.getId(), age.getText().toString());
-                    Log.i("TAG", String.valueOf(answersList));
                 }
             }
         });
@@ -95,11 +108,9 @@ public class HealthInformation extends Fragment implements
 
             }
         });
-        getFieldsDetails();
+        new CheckInternet().execute();
         return mBaseView;
     }
-
-
 
     private void getFieldsDetails() {
         sPostRequest = false;
@@ -158,7 +169,7 @@ public class HealthInformation extends Fragment implements
                 JSONArray jsonArray = jsonObject.getJSONArray("details");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject json = jsonArray.getJSONObject(i);
-                    Log.i("TAG", "Boolean " +json.getString("title").equals("Gender"));
+                    Log.i("TAG", "Boolean " + json.getString("title").equals("Gender"));
                     if (!json.getString("title").equals("Age")) {
                         if (!json.getString("title").equals("Gender")) {
                             fieldData.add(json);
@@ -188,7 +199,7 @@ public class HealthInformation extends Fragment implements
                             }
                         }
                     }
-                    Log.e("required fields ", "test "+ requiredFields);
+                    Log.e("required fields ", "test " + requiredFields);
                 }
             } else {
                 AppGlobals.alertDialog(getActivity(), "Not Found", "Nothing found");
@@ -205,12 +216,12 @@ public class HealthInformation extends Fragment implements
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.submit_answers:
-                submitButton.requestFocus();
+                mLinearlayout.requestFocus();
+                Log.i("TAG", "" + submitButton.hasFocus());
                 if (AppGlobals.sEntryId == 0) {
                     Toast.makeText(getActivity(), "Please try again process failed",
                             Toast.LENGTH_SHORT).show();
                     MainActivity.loadFragment(new ConsultationFragment());
-//                    finish();
                 } else {
                     boolean result = validateEditText();
                     Log.i("boolean", " " + result);
@@ -226,10 +237,12 @@ public class HealthInformation extends Fragment implements
     class Adapter extends ArrayAdapter<JSONObject> {
 
         private ArrayList<JSONObject> fieldsDetail;
+        private ArrayList<String> checkBoxes;
 
         public Adapter(Context context, ArrayList<JSONObject> fieldsDetail, int resource) {
             super(context, resource);
             this.fieldsDetail = fieldsDetail;
+            checkBoxes = new ArrayList<>();
         }
 
         @Override
@@ -241,6 +254,8 @@ public class HealthInformation extends Fragment implements
                 holder = new ViewHolder();
                 holder.title = (TextView) convertView.findViewById(R.id.field_title);
                 holder.editText = (EditText) convertView.findViewById(R.id.field_answer);
+                holder.editTextLayout = (LinearLayout) convertView.findViewById(R.id.edit_text_layout);
+                holder.checkBoxLayout = (LinearLayout) convertView.findViewById(R.id.checkbox_layout);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
@@ -249,43 +264,95 @@ public class HealthInformation extends Fragment implements
                 SpannableStringBuilder title = new SpannableStringBuilder();
                 if (fieldsDetail.get(position).getInt("required") == 1) {
                     String red = "* ";
-                    SpannableString redSpannable= new SpannableString(red);
+                    SpannableString redSpannable = new SpannableString(red);
                     redSpannable.setSpan(new ForegroundColorSpan(Color.RED), 0, red.length(), 0);
                     title.append(redSpannable);
                     String white = fieldsDetail.get(position).getString("title");
-                    SpannableString whiteSpannable= new SpannableString(white);
+                    SpannableString whiteSpannable = new SpannableString(white);
                     whiteSpannable.setSpan(new ForegroundColorSpan(Color.WHITE), 0, white.length(), 0);
                     title.append(whiteSpannable);
                 } else {
                     String white = fieldsDetail.get(position).getString("title");
-                    SpannableString whiteSpannable= new SpannableString(white);
+                    SpannableString whiteSpannable = new SpannableString(white);
                     whiteSpannable.setSpan(new ForegroundColorSpan(Color.WHITE), 0, white.length(), 0);
                     title.append(whiteSpannable);
                 }
                 holder.title.setText(title, TextView.BufferType.SPANNABLE);
-                holder.editText.setId(fieldsDetail.get(position).getInt("id"));
-                holder.editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                    @Override
-                    public void onFocusChange(View view, boolean b) {
-                        if (b) {
-
-                        } else {
-                            try {
-                                if (answersList.containsKey(fieldsDetail.get(position).getInt("id"))
-                                        && holder.editText.toString().trim().isEmpty()) {
-                                    answersList.remove(fieldsDetail.get(position).getInt("id"));
-                                } else {
-                                    if (!holder.editText.getText().toString().trim().isEmpty()) {
-                                        answersList.put(fieldsDetail.get(position).getInt("id"), holder.editText.getText().toString());
+                if (fieldsDetail.get(position).getString("field_type").equals("checkbox")) {
+                    holder.editTextLayout.setVisibility(View.GONE);
+                    JSONArray arrJson = fieldsDetail.get(position).getJSONArray("field_data");
+                    String[] strings = new String[arrJson.length()];
+                    for (int i = 0; i < arrJson.length(); i++) {
+                        strings[i] = arrJson.getString(i);
+                    }
+                    for (String fieldItem : strings) {
+                        if (!checkBoxes.contains(fieldItem)) {
+                            checkBoxes.add(fieldItem);
+                            CheckBox checkBox = new CheckBox(getActivity());
+                            checkBox.setText(fieldItem);
+                            checkBox.setTextColor(getResources().getColor(android.R.color.white));
+                            checkBox.setButtonDrawable(getResources().getDrawable(
+                                    R.drawable.checkbox_background));
+                            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                                @Override
+                                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                                    if (b) {
+                                        Log.i("Checkbox", " " + compoundButton.getText().toString());
+                                        checkBoxAnswer.add(compoundButton.getText().toString());
+                                        Log.i("TAG", String.valueOf(checkBoxAnswer));
+                                        if (checkBoxAnswer.size() > 0) {
+                                            try {
+                                                answersList.put(fieldsDetail.get(position)
+                                                        .getInt("id"), checkBoxAnswer.toString());
+                                                Log.i("checked", String.valueOf(answersList));
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    } else {
+                                        checkBoxAnswer.remove(compoundButton.getText().toString());
+                                        if (checkBoxAnswer.size() < 1) {
+                                            try {
+                                                answersList.remove(fieldsDetail.get(position)
+                                                        .getInt("id"));
+                                                Log.i("TAG", String.valueOf(answersList));
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                        Log.i("Unchecked", String.valueOf(checkBoxAnswer));
                                     }
-                                    }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
+                                }
+                            });
+                            holder.checkBoxLayout.addView(checkBox);
                         }
                     }
-                });
+
+                } else {
+                    holder.editText.setId(fieldsDetail.get(position).getInt("id"));
+                    holder.editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                        @Override
+                        public void onFocusChange(View view, boolean b) {
+                            if (b) {
+
+                            } else {
+                                try {
+                                    if (answersList.containsKey(fieldsDetail.get(position).getInt("id"))
+                                            && holder.editText.toString().trim().isEmpty()) {
+                                        answersList.remove(fieldsDetail.get(position).getInt("id"));
+                                    } else {
+                                        if (!holder.editText.getText().toString().trim().isEmpty()) {
+                                            answersList.put(fieldsDetail.get(position).getInt("id"), holder.editText.getText().toString());
+                                        }
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        }
+                    });
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -305,7 +372,7 @@ public class HealthInformation extends Fragment implements
         Log.i("TAG", "array" + answersList.size());
         Log.i("TAG", "required fields" + requiredFields);
         for (int id : idsArray) {
-            if (answersList.size() >= (requiredFields.size()-1)) {
+            if (answersList.size() >= (requiredFields.size() - 1)) {
                 if (answersList.containsKey(id)) {
                     value = true;
                     stringBuilder.append(String.format("[%d]=%s&", id, answersList.get(id)));
@@ -330,6 +397,8 @@ public class HealthInformation extends Fragment implements
     class ViewHolder {
         public TextView title;
         public EditText editText;
+        public LinearLayout editTextLayout;
+        public LinearLayout checkBoxLayout;
     }
 
     private void sendConsultationData(String data) {
@@ -338,5 +407,60 @@ public class HealthInformation extends Fragment implements
         mRequest.setOnReadyStateChangeListener(this);
         mRequest.open("POST", AppGlobals.CONSULTATION_STEP_2);
         mRequest.send(data);
+    }
+
+    class CheckInternet extends AsyncTask<String, String, Boolean> {
+
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Checking Internet...");
+            progressDialog.setIndeterminate(false);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+            boolean isInternetAvailable = false;
+            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                isInternetAvailable = true;
+            }
+
+            return isInternetAvailable;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            progressDialog.dismiss();
+            if (aBoolean) {
+                getFieldsDetails();
+            } else {
+                alertDialog(getActivity(), "No internet", "Please check your internet connection");
+            }
+        }
+    }
+
+    public void alertDialog(Activity activity, String title, String msg) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+        alertDialogBuilder.setTitle(title);
+        alertDialogBuilder.setMessage(msg).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+                MainActivity.getInstance().finish();
+            }
+        });
+        alertDialogBuilder.setNegativeButton("Retry", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                new CheckInternet().execute();
+            }
+        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 }

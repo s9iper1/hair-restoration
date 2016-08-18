@@ -18,13 +18,11 @@ import android.widget.TextView;
 import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
-import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.SimpleDividerItemDecoration;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 import com.byteshaft.requests.HttpRequest;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,6 +37,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
     private CustomView mViewHolder;
     private HttpRequest mRequest;
     private ProgressDialog mProgressDialog;
+    private static ArrayList<JSONObject> sDataList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -50,7 +49,6 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         mRecyclerView.canScrollVertically(1);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
-        mProgressDialog = Helpers.getProgressDialog(getActivity());
         new CheckInternet().execute();
         return mBaseView;
     }
@@ -77,23 +75,23 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
     }
 
     private ArrayList<JSONObject> parseJson(String data) {
-        ArrayList<JSONObject> dataList = new ArrayList<>();
+        sDataList = new ArrayList<>();
         JSONObject jsonObject;
         try {
             jsonObject = new JSONObject(data);
             if (jsonObject.getString("Message").equals("Successfully")) {
-                JSONArray jsonArray = jsonObject.getJSONArray("details");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject json = jsonArray.getJSONObject(i);
-                    dataList.add(json);
-                }
+                JSONObject jsonArray = jsonObject.getJSONObject("details");
+//                for (int i = 0; i < jsonArray.length(); i++) {
+//                    JSONObject json = jsonArray.getJSONObject(i);
+                    sDataList.add(jsonArray);
+//                }
             } else {
                 AppGlobals.alertDialog(getActivity(), "Not Found", "Nothing found");
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return dataList;
+        return sDataList;
     }
 
     // custom RecyclerView class for inflating customView
@@ -156,16 +154,14 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
 
     class CheckInternet extends AsyncTask<String, String, Boolean> {
 
-        private ProgressDialog progressDialog;
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setMessage("Checking Internet...");
-            progressDialog.setIndeterminate(false);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
+            mProgressDialog = new ProgressDialog(getActivity());
+            mProgressDialog.setMessage("Please wait...");
+            mProgressDialog.setIndeterminate(false);
+            mProgressDialog.setCancelable(false);
+            mProgressDialog.show();
         }
 
         @Override
@@ -181,7 +177,6 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         @Override
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
-            progressDialog.dismiss();
             if (aBoolean) {
                 getEducationData();
             } else {

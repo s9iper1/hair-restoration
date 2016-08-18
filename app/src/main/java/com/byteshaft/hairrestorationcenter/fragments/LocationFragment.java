@@ -2,7 +2,9 @@ package com.byteshaft.hairrestorationcenter.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -10,6 +12,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,6 +93,7 @@ public class LocationFragment extends Fragment implements
                                 getContext().getApplicationContext(),
                                 parseJson(mRequest.getResponseText())
                         );
+                        Log.i("TAG", mRequest.getResponseText());
                         mExpandableListView.setAdapter(adapter);
                         mExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
 
@@ -224,7 +228,7 @@ public class LocationFragment extends Fragment implements
         }
 
         @Override
-        public View getRealChildView(int i, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+        public View getRealChildView(final int i, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
             final SubItemsViewHolder holder;
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) mContext
@@ -261,12 +265,51 @@ public class LocationFragment extends Fragment implements
                         }
                 );
                 holder.addressTextView.setText(mItems.get(i).getString("address"));
+                holder.addressTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String uri = null;
+                        try {
+                            uri = "http://maps.google.com/maps?q=loc:" + mItems.get(i).getLong("lat")
+                                    + "," + mItems.get(i).getLong("lon") + " (" + mItems.get(i).getString("address") + ")";
+                        Log.i("TAG", uri);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        startActivity(intent);
+                    }
+                });
                 holder.phoneNumberTextView.setText(null);
                 holder.phoneNumberTextView.append(getPhoneTitle("Phone: "));
                 holder.phoneNumberTextView.append(mItems.get(i).getString("phone"));
+                holder.phoneNumberTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(Intent.ACTION_DIAL);
+                        try {
+                            intent.setData(Uri.parse(String.format("tel:%s", mItems.get(i).getString("phone"))));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        startActivity(intent);
+                    }
+                });
                 holder.tollFreeTextView.setText(null);
                 holder.tollFreeTextView.append(getPhoneTitle("Toll Free: "));
                 holder.tollFreeTextView.append(mItems.get(i).getString("toll_free"));
+                holder.tollFreeTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(Intent.ACTION_DIAL);
+                        try {
+                            intent.setData(Uri.parse(String.format("tel:%s", mItems.get(i).getString("toll_free"))));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        startActivity(intent);
+                    }
+                });
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -337,7 +380,7 @@ public class LocationFragment extends Fragment implements
     private SpannableString getPhoneTitle(String title) {
         SpannableString ss1=  new SpannableString(title);
         int colorPrimary = ContextCompat.getColor(
-                getContext().getApplicationContext(), R.color.colorPrimary);
+                getContext().getApplicationContext(), R.color.phone_color);
         ss1.setSpan(new StyleSpan(Typeface.BOLD), 0, ss1.length(), 0);
         ss1.setSpan(new ForegroundColorSpan(colorPrimary), 0, ss1.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
