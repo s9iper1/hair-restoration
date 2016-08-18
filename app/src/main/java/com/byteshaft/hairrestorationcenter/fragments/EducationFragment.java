@@ -43,6 +43,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBaseView = inflater.inflate(R.layout.fragment_education, container, false);
         setHasOptionsMenu(true);
+        sDataList = new ArrayList<>();
         mRecyclerView = (RecyclerView) mBaseView.findViewById(R.id.recycler_view_education);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(linearLayoutManager);
@@ -54,7 +55,6 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
     }
 
     private void getEducationData() {
-        mProgressDialog.show();
         mRequest = new HttpRequest(getActivity().getApplicationContext());
         mRequest.setOnReadyStateChangeListener(this);
         mRequest.open("GET", AppGlobals.EDUCATION_URL);
@@ -75,7 +75,6 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
     }
 
     private ArrayList<JSONObject> parseJson(String data) {
-        sDataList = new ArrayList<>();
         JSONObject jsonObject;
         try {
             jsonObject = new JSONObject(data);
@@ -83,7 +82,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
                 JSONObject jsonArray = jsonObject.getJSONObject("details");
 //                for (int i = 0; i < jsonArray.length(); i++) {
 //                    JSONObject json = jsonArray.getJSONObject(i);
-                    sDataList.add(jsonArray);
+                sDataList.add(jsonArray);
 //                }
             } else {
                 AppGlobals.alertDialog(getActivity(), "Not Found", "Nothing found");
@@ -99,7 +98,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
 
         private ArrayList<JSONObject> data;
 
-        public EducationAdapter(ArrayList<JSONObject> data)   {
+        public EducationAdapter(ArrayList<JSONObject> data) {
             this.data = data;
         }
 
@@ -117,7 +116,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
             try {
                 mViewHolder.textViewOffers.setText(data.get(position).getString("title"));
                 Picasso.with(getActivity())
-                        .load("http:"+data.get(position).getString("photo").replaceAll("\"", ""))
+                        .load("http:" + data.get(position).getString("photo").replaceAll("\"", ""))
                         .resize(900, 300)
                         .centerCrop()
                         .into(mViewHolder.imageView);
@@ -158,7 +157,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         protected void onPreExecute() {
             super.onPreExecute();
             mProgressDialog = new ProgressDialog(getActivity());
-            mProgressDialog.setMessage("Please wait...");
+            mProgressDialog.setMessage("Loading...");
             mProgressDialog.setIndeterminate(false);
             mProgressDialog.setCancelable(false);
             mProgressDialog.show();
@@ -170,7 +169,6 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
             if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
                 isInternetAvailable = true;
             }
-
             return isInternetAvailable;
         }
 
@@ -180,6 +178,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
             if (aBoolean) {
                 getEducationData();
             } else {
+                mProgressDialog.dismiss();
                 alertDialog(getActivity(), "No internet", "Please check your internet connection");
             }
         }

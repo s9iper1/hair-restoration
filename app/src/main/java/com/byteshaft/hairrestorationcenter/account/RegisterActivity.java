@@ -51,7 +51,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register);
-        mTermsAndCondition = (TextView) findViewById(R.id.tv_terms_and_condition);
+        mTermsAndCondition = (TextView) findViewById(R.id.checkbox_text);
         mCheckBox = (CheckBox) findViewById(R.id.checkbox);
         mUsername = (EditText) findViewById(R.id.user_name);
         mFirstName = (EditText) findViewById(R.id.first_name);
@@ -91,7 +91,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     new RegistrationTask().execute();
                 }
                 break;
-            case R.id.tv_terms_and_condition:
+            case R.id.checkbox_text:
                 // missing 'http://' will cause crashed
                 Uri uri = Uri.parse("http://www.affordablehairtransplants.com/terms-and-conditions");
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
