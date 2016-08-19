@@ -29,11 +29,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
-import com.byteshaft.hairrestorationcenter.utils.RotateUtil;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
+import com.byteshaft.hairrestorationcenter.utils.RotateUtil;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 import com.byteshaft.requests.FormData;
 import com.byteshaft.requests.HttpRequest;
@@ -162,7 +161,12 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     Toast.makeText(getActivity(), "Please capture all the images", Toast.LENGTH_SHORT).show();
                 } else {
                     if (!sUploaded) {
-                        new CheckInternet().execute();
+                        if (AppGlobals.sIsInternetAvailable) {
+                            new CheckInternet(false).execute();
+                        } else {
+                            Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                                    executeTask(true));
+                        }
                     } else {
                         FragmentManager fragmentManager = getFragmentManager();
                         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -172,6 +176,18 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     }
                 }
         }
+    }
+
+    private Runnable executeTask(final boolean value) {
+        Runnable runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+                new CheckInternet(value).execute();
+            }
+        };
+        return runnable;
     }
 
     // Dialog with option to capture image or choose from gallery
@@ -414,7 +430,13 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
 
     class CheckInternet extends AsyncTask<String, String, Boolean> {
 
+        public CheckInternet(boolean checkInternet) {
+            this.checkInternet = checkInternet;
+        }
+
+        private boolean checkInternet = false;
         private ProgressDialog progressDialog;
+
 
         @Override
         protected void onPreExecute() {
@@ -429,8 +451,12 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
         @Override
         protected Boolean doInBackground(String... strings) {
             boolean isInternetAvailable = false;
-            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+            if (AppGlobals.sIsInternetAvailable) {
                 isInternetAvailable = true;
+            } else if (checkInternet) {
+                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                    isInternetAvailable = true;
+                }
             }
 
             return isInternetAvailable;
@@ -443,21 +469,9 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
             if (aBoolean) {
                 uploadImages();
             } else {
-                alertDialog(getActivity(), "No internet", "Please check your internet connection");
+                Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                        executeTask(true));
             }
         }
-    }
-
-    public static void alertDialog(Activity activity, String title, String msg) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-        alertDialogBuilder.setTitle(title);
-        alertDialogBuilder.setMessage(msg).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.dismiss();
-                MainActivity.getInstance().finish();
-            }
-        });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
     }
 }

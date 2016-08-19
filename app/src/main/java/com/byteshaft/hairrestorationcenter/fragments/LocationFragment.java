@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -26,6 +27,7 @@ import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AnimatedExpandableListView;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
+import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 import com.byteshaft.requests.HttpRequest;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -53,8 +55,26 @@ public class LocationFragment extends Fragment implements
         mExpandableListView = (AnimatedExpandableListView) mBaseView.findViewById(R.id.list_view_locations);
         handleCollapseAndExpand();
         mProgressDialog = Helpers.getProgressDialog(getActivity());
-        getLocationData();
+        if (AppGlobals.sIsInternetAvailable) {
+            new GetLocation(false).execute();
+        } else {
+            Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                    executeTask(true));
+        }
+//        getLocationData();
         return mBaseView;
+    }
+
+    private Runnable executeTask(final boolean value) {
+        Runnable runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+                new GetLocation(value).execute();
+            }
+        };
+        return runnable;
     }
 
     private void handleCollapseAndExpand() {
@@ -321,56 +341,6 @@ public class LocationFragment extends Fragment implements
             return 1;
         }
 
-//        @Override
-//        public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
-//            final SubItemsViewHolder holder;
-//            if (view == null) {
-//                LayoutInflater inflater = (LayoutInflater) mContext
-//                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//                view = inflater.inflate(R.layout.delegate_location, null);
-//                holder = new SubItemsViewHolder();
-//                holder.bannerImageView = (ImageView) view.findViewById(R.id.location_image);
-//                holder.addressTextView = (TextView) view.findViewById(R.id.address);
-//                holder.phoneNumberTextView = (TextView) view.findViewById(
-//                        R.id.phone_number_text_view);
-//                holder.tollFreeTextView = (TextView) view.findViewById(R.id.toll_free_number);
-//                holder.progressBar = (ProgressBar) view.findViewById(
-//                        R.id.location_image_loading_progress_bar);
-//                view.setTag(holder);
-//            } else {
-//                holder = (SubItemsViewHolder) view.getTag();
-//            }
-//            try {
-//                holder.progressBar.setVisibility(View.VISIBLE);
-//                Picasso picasso = Picasso.with(getActivity());
-//                String url = "http:" + mItems.get(i).getString("photo").replaceAll(
-//                        "\"", "").replaceAll(" ", "%20");
-//                picasso.load(url).resize(900, 300).centerCrop().into(
-//                        holder.bannerImageView, new Callback() {
-//                            @Override
-//                            public void onSuccess() {
-//                                holder.progressBar.setVisibility(View.GONE);
-//                            }
-//
-//                            @Override
-//                            public void onError() {
-//                                holder.progressBar.setVisibility(View.GONE);
-//                            }
-//                        }
-//                );
-//                holder.addressTextView.setText(mItems.get(i).getString("address"));
-//                holder.phoneNumberTextView.setText(null);
-//                holder.phoneNumberTextView.append(getPhoneTitle("Phone: "));
-//                holder.phoneNumberTextView.append(mItems.get(i).getString("phone"));
-//                holder.tollFreeTextView.setText(null);
-//                holder.tollFreeTextView.append(getPhoneTitle("Toll Free: "));
-//                holder.tollFreeTextView.append(mItems.get(i).getString("toll_free"));
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//            return view;
-//        }
-
         @Override
         public boolean isChildSelectable(int i, int i1) {
             return false;
@@ -385,5 +355,52 @@ public class LocationFragment extends Fragment implements
         ss1.setSpan(new ForegroundColorSpan(colorPrimary), 0, ss1.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return ss1;
+    }
+
+
+    class GetLocation extends AsyncTask<String, String, Boolean> {
+
+        public GetLocation(boolean checkInternet) {
+            this.checkInternet = checkInternet;
+        }
+
+        private boolean checkInternet = false;
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Sending...");
+            progressDialog.setIndeterminate(false);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+            boolean isInternetAvailable = false;
+            if (AppGlobals.sIsInternetAvailable) {
+                isInternetAvailable = true;
+            } else if (checkInternet) {
+                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                    isInternetAvailable = true;
+                }
+            }
+
+            return isInternetAvailable;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            progressDialog.dismiss();
+            if (aBoolean) {
+                getLocationData();
+            } else {
+                Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                        executeTask(true));
+            }
+        }
     }
 }

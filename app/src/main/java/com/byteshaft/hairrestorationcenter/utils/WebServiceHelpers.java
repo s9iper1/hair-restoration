@@ -257,11 +257,12 @@ public class WebServiceHelpers {
         boolean success = false;
 
         try {
-            URL e = new URL("https://google.com");
+            URL e = new URL("http://google.com");
             HttpURLConnection connection = (HttpURLConnection) e.openConnection();
             connection.setConnectTimeout(10000);
             connection.connect();
             success = connection.getResponseCode() == 200;
+            AppGlobals.sIsInternetAvailable = success;
         } catch (IOException var3) {
             var3.printStackTrace();
         }

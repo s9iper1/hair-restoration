@@ -1,12 +1,9 @@
 package com.byteshaft.hairrestorationcenter.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,9 +12,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
+import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.SimpleDividerItemDecoration;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 import com.byteshaft.requests.HttpRequest;
@@ -51,7 +48,12 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         mRecyclerView.canScrollVertically(1);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
-        new CheckInternet().execute();
+        if (AppGlobals.sIsInternetAvailable) {
+            new CheckInternet(false).execute();
+        } else {
+            Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                    executeTask(true));
+        }
         return mBaseView;
     }
 
@@ -73,6 +75,18 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
                         mRecyclerView.setAdapter(sAdapter);
                 }
         }
+    }
+
+    private Runnable executeTask(final boolean value) {
+        Runnable runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+                new CheckInternet(value).execute();
+            }
+        };
+        return runnable;
     }
 
     private ArrayList<JSONObject> parseJson(String data) {
@@ -153,6 +167,11 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
     }
 
     class CheckInternet extends AsyncTask<String, String, Boolean> {
+        private boolean checkInternet = false;
+
+        CheckInternet(boolean checkInternet) {
+            this.checkInternet = checkInternet;
+        }
 
         @Override
         protected void onPreExecute() {
@@ -167,8 +186,12 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         @Override
         protected Boolean doInBackground(String... strings) {
             boolean isInternetAvailable = false;
-            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+            if (AppGlobals.sIsInternetAvailable) {
                 isInternetAvailable = true;
+            } else if (checkInternet) {
+                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                    isInternetAvailable = true;
+                }
             }
             return isInternetAvailable;
         }
@@ -180,27 +203,9 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
                 getEducationData();
             } else {
                 mProgressDialog.dismiss();
-                alertDialog(getActivity(), "No internet", "Please check your internet connection");
+                Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                        executeTask(true));
             }
         }
-    }
-
-    public void alertDialog(Activity activity, String title, String msg) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-        alertDialogBuilder.setTitle(title);
-        alertDialogBuilder.setMessage(msg).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.dismiss();
-                MainActivity.getInstance().finish();
-            }
-        });
-        alertDialogBuilder.setNegativeButton("Retry", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                new CheckInternet().execute();
-            }
-        });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
     }
 }
