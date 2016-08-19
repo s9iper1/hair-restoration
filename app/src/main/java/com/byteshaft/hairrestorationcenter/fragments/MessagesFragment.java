@@ -114,12 +114,12 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
                         mMessageBodyString,
                         userId);
                 jsonObject = WebServiceHelpers.messageReceive(userId);
+                Log.i("TAG", jsonObject.toString());
                 if (jsonObject.getString("Message").equals("Successfully")) {
                     messagesArray = new ArrayList<>();
                     JSONArray details = jsonObject.getJSONArray("details");
                     for (int i = 0; i < details.length(); i++) {
                         JSONObject json = details.getJSONObject(i);
-                        Log.i("TAG", "result "+messagesArray.contains(json));
                         if (!messagesArray.contains(json)) {
                             messagesArray.add(json);
 
