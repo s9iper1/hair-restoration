@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
+import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 
 import org.json.JSONException;
@@ -124,7 +125,7 @@ public class ContactUsFragment extends Fragment implements View.OnClickListener 
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             WebServiceHelpers.dismissProgressDialog();
-            Toast.makeText(getActivity(), "Email sent", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AppGlobals.getContext(), "Email sent", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(getActivity(), MainActivity.class));
         }
     }

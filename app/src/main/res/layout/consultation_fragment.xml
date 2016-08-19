@@ -27,6 +27,7 @@
             android:id="@+id/front_side"
             android:layout_width="110dp"
             android:layout_height="110dp"
+            android:gravity="center_horizontal|center_vertical"
             android:layout_marginRight="25dp"
             android:scaleType="centerCrop"
             android:src="@mipmap/front_side" />
@@ -35,6 +36,7 @@
             android:id="@+id/left_side"
             android:layout_width="110dp"
             android:layout_height="110dp"
+            android:gravity="center_horizontal|center_vertical"
             android:layout_marginLeft="25dp"
             android:scaleType="centerCrop"
             android:src="@mipmap/left_side" />
@@ -54,6 +56,7 @@
             android:id="@+id/right_side"
             android:layout_width="110dp"
             android:layout_height="110dp"
+            android:gravity="center_horizontal|center_vertical"
             android:layout_marginRight="25dp"
             android:scaleType="centerCrop"
             android:src="@mipmap/right_side" />
@@ -62,6 +65,7 @@
             android:id="@+id/top_side"
             android:layout_width="110dp"
             android:layout_height="110dp"
+            android:gravity="center_horizontal|center_vertical"
             android:layout_marginLeft="25dp"
             android:scaleType="centerCrop"
             android:src="@mipmap/top_side" />
@@ -72,6 +76,7 @@
         android:layout_width="110dp"
         android:layout_height="110dp"
         android:layout_below="@+id/buttons"
+        android:gravity="center_horizontal|center_vertical"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="15dp"
         android:scaleType="centerCrop"

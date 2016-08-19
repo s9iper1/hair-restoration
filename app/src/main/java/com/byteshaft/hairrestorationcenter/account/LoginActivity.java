@@ -99,7 +99,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    class LogInTask extends AsyncTask<String, String, String> {
+    class LogInTask extends AsyncTask<String, String, JSONObject> {
         private JSONObject jsonObject;
         private boolean noInternet = false;
 
@@ -110,7 +110,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
 
         @Override
-        protected String doInBackground(String... strings) {
+        protected JSONObject doInBackground(String... strings) {
 
             if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()){
 
@@ -124,43 +124,47 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     e.printStackTrace();
                 }
             }
-            return null;
+            return jsonObject;
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
+        protected void onPostExecute(JSONObject jsonObject) {
+            super.onPostExecute(jsonObject);
             WebServiceHelpers.dismissProgressDialog();
-            try {
-                if (jsonObject.getString("Message").equals("Input is invalid")) {
-                    AppGlobals.alertDialog(LoginActivity.this, "Login Failed!", "Invalid Email or Password" );
+            if (jsonObject != null) {
+                try {
+                    if (jsonObject.getString("Message").equals("Input is invalid")) {
+                        AppGlobals.alertDialog(LoginActivity.this, "Login Failed!", "Invalid Email or Password");
 
-                }else if (jsonObject.getString("Message").equals("Successfully")) {
-                    JSONObject details = jsonObject.getJSONObject("details");
-                    System.out.println(jsonObject + "working");
-                    String username = details.getString(AppGlobals.KEY_USER_NAME);
-                    String userId = details.getString(AppGlobals.KEY_USER_ID);
-                    String firstName = details.getString(AppGlobals.KEY_FIRSTNAME);
-                    String lastName = details.getString(AppGlobals.KEY_LASTNAME);
-                    String email = details.getString(AppGlobals.KEY_EMAIL);
-                    String phoneNumber = details.getString(AppGlobals.KEY_PHONE_NUMBER);
-                    String zipCode = details.getString(AppGlobals.KEY_ZIP_CODE);
+                    } else if (jsonObject.getString("Message").equals("Successfully")) {
+                        JSONObject details = jsonObject.getJSONObject("details");
+                        System.out.println(jsonObject + "working");
+                        String username = details.getString(AppGlobals.KEY_USER_NAME);
+                        String userId = details.getString(AppGlobals.KEY_USER_ID);
+                        String firstName = details.getString(AppGlobals.KEY_FIRSTNAME);
+                        String lastName = details.getString(AppGlobals.KEY_LASTNAME);
+                        String email = details.getString(AppGlobals.KEY_EMAIL);
+                        String phoneNumber = details.getString(AppGlobals.KEY_PHONE_NUMBER);
+                        String zipCode = details.getString(AppGlobals.KEY_ZIP_CODE);
 
-                    //saving values
-                    AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_FIRSTNAME, firstName);
-                    Log.i("First name", " " + AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_FIRSTNAME));
-                    AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_LASTNAME, lastName);
-                    AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_EMAIL, email);
-                    AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_PHONE_NUMBER, phoneNumber);
-                    AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_ZIP_CODE, zipCode);
-                    AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_USER_ID, userId);
-                    AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_USER_NAME, username);
-                    Toast.makeText(LoginActivity.this, "Log In Successful", Toast.LENGTH_SHORT).show();
-                    AppGlobals.saveUserLogin(true);
-                    finish();
+                        //saving values
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_FIRSTNAME, firstName);
+                        Log.i("First name", " " + AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_FIRSTNAME));
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_LASTNAME, lastName);
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_EMAIL, email);
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_PHONE_NUMBER, phoneNumber);
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_ZIP_CODE, zipCode);
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_USER_ID, userId);
+                        AppGlobals.saveDataToSharedPreferences(AppGlobals.KEY_USER_NAME, username);
+                        Toast.makeText(LoginActivity.this, "Log In Successful", Toast.LENGTH_SHORT).show();
+                        AppGlobals.saveUserLogin(true);
+                        finish();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
+            } else {
+                AppGlobals.alertDialog(LoginActivity.this, "Connection Problem", "Please check your internet connection and try again");
             }
         }
     }

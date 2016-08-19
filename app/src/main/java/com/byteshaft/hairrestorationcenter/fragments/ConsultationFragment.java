@@ -15,6 +15,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -27,10 +29,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.byteshaft.hairrestorationcenter.HealthInformation;
 import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
+import com.byteshaft.hairrestorationcenter.utils.RotateUtil;
 import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 import com.byteshaft.requests.FormData;
@@ -151,13 +153,22 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 break;
             case R.id.upload_button:
 //                MainActivity.loadFragment(new HealthInformation());
+//                FragmentManager fragmentManager = getFragmentManager();
+//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                fragmentTransaction.replace(R.id.container, new HealthInformation());
+//                fragmentTransaction.addToBackStack("Health_info");
+//                fragmentTransaction.commit();
                 if (imagesHashMap.size() < 5) {
                     Toast.makeText(getActivity(), "Please capture all the images", Toast.LENGTH_SHORT).show();
                 } else {
                     if (!sUploaded) {
                         new CheckInternet().execute();
                     } else {
-                        MainActivity.loadFragment(new HealthInformation());
+                        FragmentManager fragmentManager = getFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.replace(R.id.container, new HealthInformation());
+                        fragmentTransaction.addToBackStack("Health_info");
+                        fragmentTransaction.commit();
                     }
                 }
         }
@@ -172,6 +183,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
             @Override
             public void onClick(DialogInterface dialog, int item) {
                 if (items[item].equals("Take Photo")) {
+                    selectImage = false;
                     dispatchTakePictureIntent(id);
                 } else if (items[item].equals("Choose from Library")) {
                     Intent intent = new Intent(
@@ -306,7 +318,9 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
         int imageHeight = bitmap.getHeight();
         int newWidth = image.getWidth();
         int newHeight = (imageHeight * newWidth)/ imageWidth;
-        image.setImageBitmap(Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false));
+        Bitmap myBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false);
+        Bitmap orientedBitmap = RotateUtil.rotateBitmap(file.getAbsolutePath(), myBitmap);
+        image.setImageBitmap(orientedBitmap);
     }
 
 
@@ -369,7 +383,14 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     if (jsonObject.getString("Message").equals("Successfully")) {
                         JSONObject jsonDetails = jsonObject.getJSONObject("details");
                         AppGlobals.sEntryId = jsonDetails.getInt("entry_id");
-                        MainActivity.loadFragment(new HealthInformation());
+
+                        FragmentManager fragmentManager = getFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.replace(R.id.container, new HealthInformation());
+                        fragmentTransaction.addToBackStack("Health_info");
+                        fragmentTransaction.commit();
+
+
 //                        startActivity(new Intent(getActivity().getApplicationContext(), HealthInformation.class));
                     }
                 } catch (JSONException e) {

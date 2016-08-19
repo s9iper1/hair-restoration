@@ -18,12 +18,12 @@ import android.widget.TextView;
 import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
-import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.SimpleDividerItemDecoration;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 import com.byteshaft.requests.HttpRequest;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,24 +38,24 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
     private CustomView mViewHolder;
     private HttpRequest mRequest;
     private ProgressDialog mProgressDialog;
+    private static ArrayList<JSONObject> sDataList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBaseView = inflater.inflate(R.layout.fragment_education, container, false);
         setHasOptionsMenu(true);
+        sDataList = new ArrayList<>();
         mRecyclerView = (RecyclerView) mBaseView.findViewById(R.id.recycler_view_education);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.canScrollVertically(1);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
-        mProgressDialog = Helpers.getProgressDialog(getActivity());
         new CheckInternet().execute();
         return mBaseView;
     }
 
     private void getEducationData() {
-        mProgressDialog.show();
         mRequest = new HttpRequest(getActivity().getApplicationContext());
         mRequest.setOnReadyStateChangeListener(this);
         mRequest.open("GET", AppGlobals.EDUCATION_URL);
@@ -76,19 +76,22 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
     }
 
     private ArrayList<JSONObject> parseJson(String data) {
-        ArrayList<JSONObject> dataList = new ArrayList<>();
         JSONObject jsonObject;
         try {
             jsonObject = new JSONObject(data);
             if (jsonObject.getString("Message").equals("Successfully")) {
-                dataList.add(jsonObject.getJSONObject("details"));
+                JSONArray jsonArray = jsonObject.getJSONArray("details");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject json = jsonArray.getJSONObject(i);
+                    sDataList.add(json);
+                }
             } else {
                 AppGlobals.alertDialog(getActivity(), "Not Found", "Nothing found");
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return dataList;
+        return sDataList;
     }
 
     // custom RecyclerView class for inflating customView
@@ -96,7 +99,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
 
         private ArrayList<JSONObject> data;
 
-        public EducationAdapter(ArrayList<JSONObject> data)   {
+        public EducationAdapter(ArrayList<JSONObject> data) {
             this.data = data;
         }
 
@@ -114,7 +117,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
             try {
                 mViewHolder.textViewOffers.setText(data.get(position).getString("title"));
                 Picasso.with(getActivity())
-                        .load("http:"+data.get(position).getString("photo").replaceAll("\"", ""))
+                        .load("http:" + data.get(position).getString("photo").replaceAll("\"", ""))
                         .resize(900, 300)
                         .centerCrop()
                         .into(mViewHolder.imageView);
@@ -151,16 +154,14 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
 
     class CheckInternet extends AsyncTask<String, String, Boolean> {
 
-        private ProgressDialog progressDialog;
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setMessage("Checking Internet...");
-            progressDialog.setIndeterminate(false);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
+            mProgressDialog = new ProgressDialog(getActivity());
+            mProgressDialog.setMessage("Loading...");
+            mProgressDialog.setIndeterminate(false);
+            mProgressDialog.setCancelable(false);
+            mProgressDialog.show();
         }
 
         @Override
@@ -169,29 +170,34 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
             if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
                 isInternetAvailable = true;
             }
-
             return isInternetAvailable;
         }
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
-            progressDialog.dismiss();
             if (aBoolean) {
                 getEducationData();
             } else {
+                mProgressDialog.dismiss();
                 alertDialog(getActivity(), "No internet", "Please check your internet connection");
             }
         }
     }
 
-    public static void alertDialog(Activity activity, String title, String msg) {
+    public void alertDialog(Activity activity, String title, String msg) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder.setTitle(title);
         alertDialogBuilder.setMessage(msg).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 dialog.dismiss();
                 MainActivity.getInstance().finish();
+            }
+        });
+        alertDialogBuilder.setNegativeButton("Retry", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                new CheckInternet().execute();
             }
         });
         AlertDialog alertDialog = alertDialogBuilder.create();

@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -49,10 +48,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private String mPasswordString;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register);
-        mTermsAndCondition = (TextView) findViewById(R.id.tv_terms_and_condition);
+        mTermsAndCondition = (TextView) findViewById(R.id.checkbox_text);
         mCheckBox = (CheckBox) findViewById(R.id.checkbox);
         mUsername = (EditText) findViewById(R.id.user_name);
         mFirstName = (EditText) findViewById(R.id.first_name);
@@ -92,7 +91,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     new RegistrationTask().execute();
                 }
                 break;
-            case R.id.tv_terms_and_condition:
+            case R.id.checkbox_text:
                 // missing 'http://' will cause crashed
                 Uri uri = Uri.parse("http://www.affordablehairtransplants.com/terms-and-conditions");
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -127,6 +126,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             valid = false;
         } else {
             mEmailAddress.setError(null);
+        }
+        if (!mCheckBox.isChecked()) {
+            valid = false;
+            Toast.makeText(RegisterActivity.this, "Please agree terms & services", Toast.LENGTH_SHORT).show();
         }
         return valid;
     }

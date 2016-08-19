@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,11 +87,14 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
                             userId);
                     jsonObject = WebServiceHelpers.messageReceive(userId);
                     if (jsonObject.getString("Message").equals("Successfully")) {
+                        messagesArray = new ArrayList<>();
                         JSONArray details = jsonObject.getJSONArray("details");
                         for (int i = 0; i < details.length(); i++) {
                             JSONObject json = details.getJSONObject(i);
+                            Log.i("TAG", "result "+messagesArray.contains(json));
                             if (!messagesArray.contains(json)) {
                                 messagesArray.add(json);
+
                             }
                         }
                     }
@@ -104,9 +108,10 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            Toast.makeText(getActivity(), "sent", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AppGlobals.getContext(), "sent", Toast.LENGTH_SHORT).show();
             mMessageBody.setEnabled(true);
-            arrayAdapter.notifyDataSetChanged();
+            arrayAdapter = new ChatArrayAdapter(AppGlobals.getContext(), R.layout.delegate_chat, messagesArray);
+            list.setAdapter(arrayAdapter);
         }
     }
 
@@ -148,10 +153,8 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         protected void onPostExecute(ArrayList<Integer> integers) {
             super.onPostExecute(integers);
             progressDialog.dismiss();
-            if (messagesArray.size() > 0) {
-                arrayAdapter = new ChatArrayAdapter(AppGlobals.getContext(), R.layout.delegate_chat, messagesArray);
-                list.setAdapter(arrayAdapter);
-            }
+            arrayAdapter = new ChatArrayAdapter(AppGlobals.getContext(), R.layout.delegate_chat, messagesArray);
+            list.setAdapter(arrayAdapter);
 
         }
     }
