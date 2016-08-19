@@ -3,6 +3,7 @@ package com.byteshaft.hairrestorationcenter.fragments;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -144,8 +145,9 @@ public class ResetPassword extends Fragment {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             WebServiceHelpers.dismissProgressDialog();
+            Log.i("TAG", jsonObject.toString());
             try {
-                if (jsonObject.getString("Message").equals("Old Password Wrong")) {
+                if (jsonObject.getString("Message").equals("Input is invalid")) {
                     AppGlobals.alertDialog(getActivity(), "Resetting Failed!", "old Password is wrong");
                 } else if (jsonObject.getString("Message").equals("Successfully")) {
                     System.out.println(jsonObject + "working");
