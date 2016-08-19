@@ -23,6 +23,7 @@ import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 import com.byteshaft.requests.HttpRequest;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -79,11 +80,11 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         try {
             jsonObject = new JSONObject(data);
             if (jsonObject.getString("Message").equals("Successfully")) {
-                JSONObject jsonArray = jsonObject.getJSONObject("details");
-//                for (int i = 0; i < jsonArray.length(); i++) {
-//                    JSONObject json = jsonArray.getJSONObject(i);
-                sDataList.add(jsonArray);
-//                }
+                JSONArray jsonArray = jsonObject.getJSONArray("details");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject json = jsonArray.getJSONObject(i);
+                    sDataList.add(json);
+                }
             } else {
                 AppGlobals.alertDialog(getActivity(), "Not Found", "Nothing found");
             }
