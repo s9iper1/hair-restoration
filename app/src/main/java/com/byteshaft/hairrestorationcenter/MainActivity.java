@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity
                             SharedPreferences.Editor editor = sharedpreferences.edit();
                             editor.clear();
                             editor.commit();
+                            AppGlobals.logout = true;
                             finish();
                             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                         }

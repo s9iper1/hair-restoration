@@ -44,6 +44,7 @@ public class AppGlobals extends Application {
     public static boolean sConsultationSuccess = false;
     public static boolean sIsInternetAvailable = false;
     public static Activity sActivity;
+    public static boolean logout = false;
 
     @Override
     public void onCreate() {
