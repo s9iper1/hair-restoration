@@ -1,6 +1,5 @@
 package com.byteshaft.hairrestorationcenter.fragments;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,6 +13,7 @@ import android.widget.Toast;
 import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
+import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 
 import org.json.JSONException;
@@ -48,12 +48,30 @@ public class ContactUsFragment extends Fragment implements View.OnClickListener 
         return mBaseView;
     }
 
+    private Runnable executeTask(final boolean value) {
+        Runnable runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+                new ContactUsTask(value).execute();
+            }
+        };
+        return runnable;
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.submit_button:
                 if (validateEditText()) {
-                    new ContactUsTask().execute();
+                    if (AppGlobals.sIsInternetAvailable) {
+                        new ContactUsTask(false).execute();
+                    } else {
+                        Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                                executeTask(true));
+
+                    }
                 }
         }
     }
@@ -99,6 +117,11 @@ public class ContactUsFragment extends Fragment implements View.OnClickListener 
     private class ContactUsTask extends AsyncTask<String, String, String> {
 
         private JSONObject jsonObject;
+        private boolean checkInternet = false;
+
+        public ContactUsTask(boolean checkInternet) {
+            this.checkInternet = checkInternet;
+        }
 
         @Override
         protected void onPreExecute() {
@@ -107,26 +130,40 @@ public class ContactUsFragment extends Fragment implements View.OnClickListener 
         }
         @Override
         protected String doInBackground(String... strings) {
-            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()){
-                try {
-                    jsonObject = WebServiceHelpers.contactUs(
-                            mName,
-                            mEmail,
-                            mSubject,
-                            mDescription);
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
+            if (AppGlobals.sIsInternetAvailable){
+                sendRequest();
+            } else if (checkInternet) {
+                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                    sendRequest();
                 }
             }
             return null;
+        }
+
+        private void sendRequest() {
+            try {
+                jsonObject = WebServiceHelpers.contactUs(
+                        mName,
+                        mEmail,
+                        mSubject,
+                        mDescription);
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             WebServiceHelpers.dismissProgressDialog();
-            Toast.makeText(AppGlobals.getContext(), "Email sent", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(getActivity(), MainActivity.class));
+            if (jsonObject != null) {
+                Toast.makeText(AppGlobals.getContext(), "Thank you for contacting us. We will respond as" +
+                        " soon as possible.", Toast.LENGTH_SHORT).show();
+                MainActivity.loadFragment(new EducationFragment());
+            } else {
+                Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                        executeTask(true));
+            }
         }
     }
 }

@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
+import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 
 import org.json.JSONException;
@@ -44,12 +45,29 @@ public class ResetPassword extends Fragment {
             @Override
             public void onClick(View view) {
                 if (validateEditText()) {
-                    new ResetPasswordTask().execute();
+                    if (AppGlobals.sIsInternetAvailable) {
+                        new ResetPasswordTask(false).execute();
+                    } else {
+                        Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                                executeTask(true));
+                    }
                 }
 
             }
         });
         return mBaseView;
+    }
+
+    private Runnable executeTask(final boolean value) {
+        Runnable runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+                new ResetPasswordTask(value).execute();
+            }
+        };
+        return runnable;
     }
 
     private boolean validateEditText() {
@@ -85,7 +103,11 @@ public class ResetPassword extends Fragment {
 
     class ResetPasswordTask extends AsyncTask<String, String, String> {
 
-        private boolean noInternet = false;
+        public ResetPasswordTask(boolean checkInternet) {
+            this.checkInternet = checkInternet;
+        }
+
+        private boolean checkInternet = false;
         private JSONObject jsonObject;
 
         @Override
@@ -97,18 +119,25 @@ public class ResetPassword extends Fragment {
         @Override
         protected String doInBackground(String... strings) {
 
-            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()){
-
-                try {
-                    jsonObject = WebServiceHelpers.resetPassword(
-                            mEmailAddressString,
-                            mOldPasswordString,
-                            mPasswordString);
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
+            if (AppGlobals.sIsInternetAvailable) {
+                sendData();
+            } else if (checkInternet){
+                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                    sendData();
                 }
             }
             return null;
+        }
+
+        private void sendData() {
+            try {
+                jsonObject = WebServiceHelpers.resetPassword(
+                        mEmailAddressString,
+                        mOldPasswordString,
+                        mPasswordString);
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -122,6 +151,9 @@ public class ResetPassword extends Fragment {
                     System.out.println(jsonObject + "working");
                     getActivity().finish();
                     Toast.makeText(getActivity(), "Your password successfully changed", Toast.LENGTH_SHORT).show();
+                } else {
+                    Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                            executeTask(true));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

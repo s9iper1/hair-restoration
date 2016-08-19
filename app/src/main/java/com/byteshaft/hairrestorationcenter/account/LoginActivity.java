@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
+import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 
 import org.json.JSONException;
@@ -82,12 +83,29 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         return valid;
     }
 
+    private Runnable executeTask(final boolean value) {
+        Runnable runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+                new LogInTask(value).execute();
+            }
+        };
+        return runnable;
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.login:
                 if (validate()) {
-                    new LogInTask().execute();
+                    if (AppGlobals.sIsInternetAvailable) {
+                        new LogInTask(false).execute();
+                    } else {
+                        Helpers.alertDialog(LoginActivity.this, "No internet", "Please check your internet connection",
+                                executeTask(true));
+                    }
                 }
                 break;
             case R.id.register:
@@ -100,8 +118,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     class LogInTask extends AsyncTask<String, String, JSONObject> {
+
+        public LogInTask(boolean checkInternet) {
+            this.checkInternet = checkInternet;
+        }
+
+        private boolean checkInternet = false;
         private JSONObject jsonObject;
-        private boolean noInternet = false;
 
         @Override
         protected void onPreExecute() {
@@ -112,19 +135,26 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         @Override
         protected JSONObject doInBackground(String... strings) {
 
-            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()){
-
-                try {
-                    jsonObject = WebServiceHelpers.logInUser(
-                            mEmailString,
-                            mPasswordString
-                            );
-                    Log.e("TAG", String.valueOf(jsonObject));
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
+            if (AppGlobals.sIsInternetAvailable) {
+                sendData();
+            } else if (checkInternet) {
+                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                    sendData();
                 }
             }
             return jsonObject;
+        }
+
+        private void sendData() {
+            try {
+                jsonObject = WebServiceHelpers.logInUser(
+                        mEmailString,
+                        mPasswordString
+                        );
+                Log.e("TAG", String.valueOf(jsonObject));
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -164,7 +194,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     e.printStackTrace();
                 }
             } else {
-                AppGlobals.alertDialog(LoginActivity.this, "Connection Problem", "Please check your internet connection and try again");
+                Helpers.alertDialog(LoginActivity.this, "No internet", "Please check your internet connection",
+                        executeTask(true));
+
             }
         }
     }

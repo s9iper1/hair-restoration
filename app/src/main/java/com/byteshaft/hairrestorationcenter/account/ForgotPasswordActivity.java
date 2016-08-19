@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
+import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 
 import org.json.JSONException;
@@ -39,11 +40,28 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (validate()) {
-                    new ForgotPasswordTask().execute();
+                    if (AppGlobals.sIsInternetAvailable) {
+                        new ForgotPasswordTask(false).execute();
+                    } else {
+                        Helpers.alertDialog(ForgotPasswordActivity.this, "No internet", "Please check your internet connection",
+                                executeTask(true));
+                    }
                 }
 
             }
         });
+    }
+
+    private Runnable executeTask(final boolean value) {
+        Runnable runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+                new ForgotPasswordTask(value).execute();
+            }
+        };
+        return runnable;
     }
 
     public boolean validate() {
@@ -59,8 +77,13 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     }
 
     class ForgotPasswordTask extends AsyncTask<String, String, String> {
+
+        public ForgotPasswordTask(boolean checkInternet) {
+            this.checkInternet  = checkInternet;
+        }
+
         private JSONObject jsonObject;
-        private boolean noInternet = false;
+        private boolean checkInternet = false;
 
         @Override
         protected void onPreExecute() {
@@ -71,18 +94,26 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
 
-            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
-
-                try {
-                    System.out.println(jsonObject == null);
-                    jsonObject = WebServiceHelpers.forgotPassword(mEmailString);
-                    Log.e("JSON","JSon"+ String.valueOf(jsonObject));
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
+            if (AppGlobals.sIsInternetAvailable) {
+                sendData();
+            } else if (checkInternet) {
+                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                    sendData();
                 }
             }
             return null;
         }
+
+        private void sendData() {
+            try {
+                System.out.println(jsonObject == null);
+                jsonObject = WebServiceHelpers.forgotPassword(mEmailString);
+                Log.e("JSON","JSon"+ String.valueOf(jsonObject));
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
@@ -94,6 +125,9 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 }else if (jsonObject.getString("Message").equals("Successfully")) {
                     Toast.makeText(ForgotPasswordActivity.this, "Please check your mail for new password", Toast.LENGTH_SHORT).show();
                     finish();
+                } else {
+                    Helpers.alertDialog(ForgotPasswordActivity.this, "No internet", "Please check your internet connection",
+                            executeTask(true));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

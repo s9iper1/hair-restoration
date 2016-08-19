@@ -1,6 +1,5 @@
 package com.byteshaft.hairrestorationcenter.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -108,7 +107,12 @@ public class HealthInformation extends Fragment implements
 
             }
         });
-        new CheckInternet().execute();
+        if (AppGlobals.sIsInternetAvailable) {
+            new CheckInternet(false).execute();
+        } else {
+            Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                    executeTask(true));
+        }
         return mBaseView;
     }
 
@@ -119,6 +123,18 @@ public class HealthInformation extends Fragment implements
         mRequest.setOnReadyStateChangeListener(this);
         mRequest.open("GET", AppGlobals.QUESTION_LIST);
         mRequest.send();
+    }
+
+    private Runnable executeTask(final boolean value) {
+        Runnable runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+                new CheckInternet(value).execute();
+            }
+        };
+        return runnable;
     }
 
     @Override
@@ -227,7 +243,12 @@ public class HealthInformation extends Fragment implements
                     Log.i("boolean", " " + result);
                     if (result) {
                         mProgressDialog.show();
-                        sendConsultationData(stringBuilder.toString());
+                        if (AppGlobals.sIsInternetAvailable) {
+                            new SendData(false).execute();
+                        } else {
+                            Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                                    executeSendData(true));
+                        }
                     }
                 }
                 break;
@@ -411,13 +432,18 @@ public class HealthInformation extends Fragment implements
 
     class CheckInternet extends AsyncTask<String, String, Boolean> {
 
+        public CheckInternet(boolean checkInternet) {
+            this.checkInternet = checkInternet;
+        }
+
+        private boolean checkInternet = false;
         private ProgressDialog progressDialog;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setMessage("Checking Internet...");
+            progressDialog.setMessage("Loading ...");
             progressDialog.setIndeterminate(false);
             progressDialog.setCancelable(false);
             progressDialog.show();
@@ -426,10 +452,14 @@ public class HealthInformation extends Fragment implements
         @Override
         protected Boolean doInBackground(String... strings) {
             boolean isInternetAvailable = false;
-            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+            if (AppGlobals.sIsInternetAvailable) {
                 isInternetAvailable = true;
-            }
+            } else if (checkInternet) {
+                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                    isInternetAvailable = true;
+                }
 
+            }
             return isInternetAvailable;
         }
 
@@ -440,27 +470,68 @@ public class HealthInformation extends Fragment implements
             if (aBoolean) {
                 getFieldsDetails();
             } else {
-                alertDialog(getActivity(), "No internet", "Please check your internet connection");
+                Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                        executeTask(true));
             }
         }
     }
 
-    public void alertDialog(Activity activity, String title, String msg) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-        alertDialogBuilder.setTitle(title);
-        alertDialogBuilder.setMessage(msg).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.dismiss();
-                MainActivity.getInstance().finish();
+
+        class SendData extends AsyncTask<String, String, Boolean> {
+
+            public SendData(boolean checkInternet) {
+                this.checkInternet = checkInternet;
             }
-        });
-        alertDialogBuilder.setNegativeButton("Retry", new DialogInterface.OnClickListener() {
+
+            private boolean checkInternet = false;
+            private ProgressDialog progressDialog;
+
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                new CheckInternet().execute();
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progressDialog = new ProgressDialog(getActivity());
+                progressDialog.setMessage("Sending...");
+                progressDialog.setIndeterminate(false);
+                progressDialog.setCancelable(false);
+                progressDialog.show();
             }
-        });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+
+            @Override
+            protected Boolean doInBackground(String... strings) {
+                boolean isInternetAvailable = false;
+                if (AppGlobals.sIsInternetAvailable) {
+                    isInternetAvailable = true;
+                } else if (checkInternet) {
+                    if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                        isInternetAvailable = true;
+                    }
+                }
+
+                return isInternetAvailable;
+            }
+
+            @Override
+            protected void onPostExecute(Boolean aBoolean) {
+                super.onPostExecute(aBoolean);
+                progressDialog.dismiss();
+                if (aBoolean) {
+                    sendConsultationData(stringBuilder.toString());
+                } else {
+                    Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                            executeSendData(true));
+                }
+            }
+        }
+
+    private Runnable executeSendData(final boolean value) {
+        Runnable runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+                new SendData(value).execute();
+            }
+        };
+        return runnable;
     }
-}
+    }

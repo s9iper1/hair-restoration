@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
+import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 
 import org.json.JSONException;
@@ -78,6 +79,18 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
+    private Runnable executeTask(final boolean value) {
+        Runnable runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+                new RegistrationTask(value).execute();
+            }
+        };
+        return runnable;
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -88,7 +101,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 mPhoneNumberString = mPhoneNumber.getText().toString();
                 mZipCodeString = mZipCode.getText().toString();
                 if (validateEditText()) {
-                    new RegistrationTask().execute();
+                    if (AppGlobals.sIsInternetAvailable) {
+                        new RegistrationTask(false).execute();
+                    } else {
+                        Helpers.alertDialog(RegisterActivity.this, "No internet",
+                                "Please check your internet connection",
+                                executeTask(true));
+                    }
                 }
                 break;
             case R.id.checkbox_text:
@@ -136,7 +155,11 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     class RegistrationTask extends AsyncTask<String, String, String> {
 
-        private boolean noInternet = false;
+        public RegistrationTask(boolean checkInternet) {
+            this.checkInternet = checkInternet;
+        }
+
+        private boolean checkInternet = false;
         private JSONObject jsonObject;
 
         @Override
@@ -148,24 +171,31 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         @Override
         protected String doInBackground(String... strings) {
 
-            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()){
-
-                try {
-                    jsonObject = WebServiceHelpers.registerUser(
-                            mFirstNameString,
-                            mLastNameString,
-                            mEmailAddressString,
-                            mPhoneNumberString,
-                            mVerifyPasswordString,
-                            mPasswordString,
-                            mUsernameString,
-                            mZipCodeString);
-                    Log.e("TAG", String.valueOf(jsonObject));
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
+            if (AppGlobals.sIsInternetAvailable) {
+                sendData();
+            } else if (checkInternet) {
+                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                    sendData();
                 }
             }
             return null;
+        }
+
+        private void sendData() {
+            try {
+                jsonObject = WebServiceHelpers.registerUser(
+                        mFirstNameString,
+                        mLastNameString,
+                        mEmailAddressString,
+                        mPhoneNumberString,
+                        mVerifyPasswordString,
+                        mPasswordString,
+                        mUsernameString,
+                        mZipCodeString);
+                Log.e("TAG", String.valueOf(jsonObject));
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -203,6 +233,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     LoginActivity.getInstance().finish();
                     finish();
                     Toast.makeText(RegisterActivity.this, "Account Created Successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    Helpers.alertDialog(RegisterActivity.this, "No internet", "Please check your internet connection",
+                            executeTask(true));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

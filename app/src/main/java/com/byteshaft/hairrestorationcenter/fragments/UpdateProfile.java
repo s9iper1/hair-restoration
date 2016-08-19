@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.byteshaft.hairrestorationcenter.MainActivity;
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
+import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 
 import org.json.JSONException;
@@ -65,15 +66,38 @@ public class UpdateProfile extends Fragment {
                 mZipCodeString = mZipCode.getText().toString();
                 mEmailAddressString = mEmailAddress.getText().toString();
                 mPhoneNumberString = mPhoneNumber.getText().toString();
-                new UpdateUserProfileTask().execute();
+                if (AppGlobals.sIsInternetAvailable) {
+                    new UpdateUserProfileTask(false).execute();
+                } else {
+                    Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                            executeTask(true));
+                }
 
             }
         });
         return mBaseView;
     }
 
+    private Runnable executeTask(final boolean value) {
+        Runnable runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+                new UpdateUserProfileTask(value).execute();
+            }
+        };
+        return runnable;
+    }
+
     class UpdateUserProfileTask extends AsyncTask<String, String, JSONObject> {
+
+        private boolean checkInternet = false;
         private JSONObject jsonObject;
+
+        public UpdateUserProfileTask(boolean checkInternet) {
+            this.checkInternet = checkInternet;
+        }
 
         @Override
         protected void onPreExecute() {
@@ -84,22 +108,29 @@ public class UpdateProfile extends Fragment {
         @Override
         protected JSONObject doInBackground(String... strings) {
 
-            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()){
-
-                try {
-                    jsonObject = WebServiceHelpers.updateUserProfile(
-                            mFirstNameString,
-                            mLastNameString,
-                            mEmailAddressString,
-                            mPhoneNumberString,
-                            mUserIdString,
-                            mUsernameString,
-                            mZipCodeString);
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
+            if (AppGlobals.sIsInternetAvailable) {
+                sendData();
+            } else if (checkInternet) {
+                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                    sendData();
                 }
             }
             return jsonObject;
+        }
+
+        private void sendData() {
+            try {
+                jsonObject = WebServiceHelpers.updateUserProfile(
+                        mFirstNameString,
+                        mLastNameString,
+                        mEmailAddressString,
+                        mPhoneNumberString,
+                        mUserIdString,
+                        mUsernameString,
+                        mZipCodeString);
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override

@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.byteshaft.hairrestorationcenter.R;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
+import com.byteshaft.hairrestorationcenter.utils.Helpers;
 import com.byteshaft.hairrestorationcenter.utils.WebServiceHelpers;
 
 import org.json.JSONArray;
@@ -48,8 +49,25 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
         list = (com.byteshaft.hairrestorationcenter.utils.List) mBaseView.findViewById(R.id.lv_chat);
         mSendButton.setOnClickListener(this);
         userId = AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_USER_ID);
-        new FetchMessageTask().execute();
+        if (AppGlobals.sIsInternetAvailable) {
+            new FetchMessageTask(false).execute();
+        } else {
+            Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                    executeTaskFetch(true));
+        }
         return mBaseView;
+    }
+
+    private Runnable executeTaskFetch(final boolean value) {
+        Runnable runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+                new FetchMessageTask(value).execute();
+            }
+        };
+        return runnable;
     }
 
     @Override
@@ -80,45 +98,61 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
 
         @Override
         protected String doInBackground(String... strings) {
-            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
-                try {
-                    string = WebServiceHelpers.messageSend(
-                            mMessageBodyString,
-                            userId);
-                    jsonObject = WebServiceHelpers.messageReceive(userId);
-                    if (jsonObject.getString("Message").equals("Successfully")) {
-                        messagesArray = new ArrayList<>();
-                        JSONArray details = jsonObject.getJSONArray("details");
-                        for (int i = 0; i < details.length(); i++) {
-                            JSONObject json = details.getJSONObject(i);
-                            Log.i("TAG", "result "+messagesArray.contains(json));
-                            if (!messagesArray.contains(json)) {
-                                messagesArray.add(json);
-
-                            }
-                        }
-                    }
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
+            if (AppGlobals.sIsInternetAvailable) {
+                sendData();
+            } else {
+                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                    sendData();
                 }
             }
             return null;
+        }
+
+        private void sendData() {
+            try {
+                string = WebServiceHelpers.messageSend(
+                        mMessageBodyString,
+                        userId);
+                jsonObject = WebServiceHelpers.messageReceive(userId);
+                if (jsonObject.getString("Message").equals("Successfully")) {
+                    messagesArray = new ArrayList<>();
+                    JSONArray details = jsonObject.getJSONArray("details");
+                    for (int i = 0; i < details.length(); i++) {
+                        JSONObject json = details.getJSONObject(i);
+                        Log.i("TAG", "result "+messagesArray.contains(json));
+                        if (!messagesArray.contains(json)) {
+                            messagesArray.add(json);
+
+                        }
+                    }
+                }
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             Toast.makeText(AppGlobals.getContext(), "sent", Toast.LENGTH_SHORT).show();
-            mMessageBody.setEnabled(true);
-            arrayAdapter = new ChatArrayAdapter(AppGlobals.getContext(), R.layout.delegate_chat, messagesArray);
-            list.setAdapter(arrayAdapter);
+            if (messagesArray.size() > 0) {
+                mMessageBody.setEnabled(true);
+                arrayAdapter = new ChatArrayAdapter(AppGlobals.getContext(), R.layout.delegate_chat, messagesArray);
+                list.setAdapter(arrayAdapter);
+            }
         }
     }
 
     class FetchMessageTask extends AsyncTask<String, String, ArrayList<Integer>> {
 
+        public FetchMessageTask(boolean checkInternet) {
+            this.checkInternet = checkInternet;
+        }
+
+
         private JSONObject jsonObject;
         private ProgressDialog progressDialog;
+        private boolean checkInternet = false;
 
         @Override
         protected void onPreExecute() {
@@ -132,29 +166,44 @@ public class MessagesFragment extends Fragment implements View.OnClickListener {
 
         @Override
         protected ArrayList<Integer> doInBackground(String... strings) {
-            if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
-                try {
-                    jsonObject = WebServiceHelpers.messageReceive(userId);
-                    if (jsonObject.getString("Message").equals("Successfully")) {
-                        JSONArray details = jsonObject.getJSONArray("details");
-                        for (int i = 0; i < details.length(); i++) {
-                            JSONObject json = details.getJSONObject(i);
-                            messagesArray.add(json);
-                        }
-                    }
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
+            if (AppGlobals.sIsInternetAvailable) {
+                sendData();
+            } else if (checkInternet) {
+                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                    sendData();
                 }
             }
             return null;
+        }
+
+        private void sendData() {
+            try {
+                jsonObject = WebServiceHelpers.messageReceive(userId);
+                if (jsonObject.getString("Message").equals("Successfully")) {
+                    JSONArray details = jsonObject.getJSONArray("details");
+                    for (int i = 0; i < details.length(); i++) {
+                        JSONObject json = details.getJSONObject(i);
+                        messagesArray.add(json);
+                    }
+                }
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
         protected void onPostExecute(ArrayList<Integer> integers) {
             super.onPostExecute(integers);
             progressDialog.dismiss();
-            arrayAdapter = new ChatArrayAdapter(AppGlobals.getContext(), R.layout.delegate_chat, messagesArray);
-            list.setAdapter(arrayAdapter);
+            if (messagesArray != null) {
+                arrayAdapter = new ChatArrayAdapter(AppGlobals.getContext(), R.layout.delegate_chat, messagesArray);
+                list.setAdapter(arrayAdapter);
+            } else {
+                if (!AppGlobals.sIsInternetAvailable) {
+                    Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+                            executeTaskFetch(true));
+                }
+            }
 
         }
     }
