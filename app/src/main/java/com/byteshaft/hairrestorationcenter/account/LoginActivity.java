@@ -129,7 +129,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            WebServiceHelpers.showProgressDialog(LoginActivity.this, "LoggingIn");
+            WebServiceHelpers.showProgressDialog(LoginActivity.this, "Logging In");
         }
 
         @Override
@@ -189,6 +189,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         Toast.makeText(LoginActivity.this, "Log In Successful", Toast.LENGTH_SHORT).show();
                         AppGlobals.saveUserLogin(true);
                         finish();
+                        if (AppGlobals.logout) {
+                            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                            AppGlobals.logout = false;
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
