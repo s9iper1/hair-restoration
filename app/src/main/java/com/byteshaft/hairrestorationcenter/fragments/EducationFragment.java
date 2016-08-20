@@ -72,6 +72,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
                 mProgressDialog.dismiss();
                 switch (request.getStatus()) {
                     case HttpURLConnection.HTTP_OK:
+                        Log.i("TAG", mRequest.getResponseText());
                         sAdapter = new EducationAdapter(parseJson(mRequest.getResponseText()));
                         mRecyclerView.setAdapter(sAdapter);
                 }
@@ -134,7 +135,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
                 mViewHolder.textViewOffers.setText(data.get(position).getString("title"));
                 Log.i("TAG", data.get(position).getString("photo").replaceAll("\"", "").replaceAll(" ", "%20"));
                 Picasso.with(getActivity())
-                        .load("http:" + data.get(position).getString("photo").replaceAll("\"", "").replaceAll(" ", "%20"))
+                        .load("https:" + data.get(position).getString("photo").replaceAll("\"", "").replaceAll(" ", "%20"))
                         .resize(900, 300)
                         .centerCrop()
                         .into(mViewHolder.imageView);
@@ -192,7 +193,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
             if (AppGlobals.sIsInternetAvailable) {
                 isInternetAvailable = true;
             } else if (checkInternet) {
-                if (WebServiceHelpers.isNetworkAvailable() && WebServiceHelpers.isInternetWorking()) {
+                if (WebServiceHelpers.isNetworkAvailable()) {
                     isInternetAvailable = true;
                 }
             }
@@ -202,6 +203,7 @@ public class EducationFragment extends Fragment implements HttpRequest.OnReadySt
         @Override
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
+            Log.i("TAG", "edu" + aBoolean);
             if (aBoolean) {
                 getEducationData();
             } else {
