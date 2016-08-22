@@ -12,7 +12,7 @@ import java.net.URL;
 
 public class GcmSender {
 
-    public static final String API_KEY = "AIzaSyD5-P3rPYdApepfPviN0A-aQXzb8HfGqO8";
+    public static final String API_KEY = "AIzaSyAlXvvhfAXVfhOEkI39Zl33_c8DPvfGoXQ";
 
     public static void main(String[] args) {
         try {

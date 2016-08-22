@@ -30,6 +30,7 @@ import com.byteshaft.hairrestorationcenter.fragments.LocationFragment;
 import com.byteshaft.hairrestorationcenter.fragments.MessagesFragment;
 import com.byteshaft.hairrestorationcenter.fragments.ResetPassword;
 import com.byteshaft.hairrestorationcenter.fragments.UpdateProfile;
+import com.byteshaft.hairrestorationcenter.gcm.QuickstartPreferences;
 import com.byteshaft.hairrestorationcenter.gcm.RegistrationIntentService;
 import com.byteshaft.hairrestorationcenter.utils.AppGlobals;
 import com.google.android.gms.common.ConnectionResult;
@@ -53,7 +54,11 @@ public class MainActivity extends AppCompatActivity
         if (!AppGlobals.isUserLoggedIn()) {
             startActivity(new Intent(AppGlobals.getContext(), LoginActivity.class));
         }
-        loadFragment(new EducationFragment());
+        if (getIntent().getStringExtra("message") != null) {
+            loadFragment(new MessagesFragment());
+        } else {
+            loadFragment(new EducationFragment());
+        }
         setContentView(R.layout.activity_main);
         AppGlobals.sActivity = MainActivity.this;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -107,8 +112,8 @@ public class MainActivity extends AppCompatActivity
                 startService(intent);
             }
         }
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                new IntentFilter(AppGlobals.GCM_STATE_KEY));
+        LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
     }
 
     @Override

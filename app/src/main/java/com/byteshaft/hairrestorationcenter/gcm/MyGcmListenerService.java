@@ -29,9 +29,9 @@ public class MyGcmListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        System.out.println(data);
         String type = data.getString("messageType");
         String message = data.getString("message");
+        System.out.println(message);
         sendNotification(message, "Hair Restoration Center", MainActivity.class);
     }
     // [END receive_message]
@@ -44,6 +44,7 @@ public class MyGcmListenerService extends GcmListenerService {
      */
     private void sendNotification(String message, String title, Class activity) {
         Intent intent = new Intent(this, activity);
+        intent.putExtra("message", message);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);

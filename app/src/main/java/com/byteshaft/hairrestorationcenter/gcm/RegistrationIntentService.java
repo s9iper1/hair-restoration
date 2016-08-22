@@ -80,7 +80,10 @@ public class RegistrationIntentService extends IntentService implements HttpRequ
         mRequest.setOnReadyStateChangeListener(this);
         String url = String.format("%suser_id=%s&registration_id=%s", AppGlobals.SEND_REG_KEY,
                 AppGlobals.getStringFromSharedPreferences(AppGlobals.KEY_USER_ID), token);
+        Log.i("TAG", url);
         mRequest.open("POST", url);
+        mRequest.send();
+        Log.i("TAG", "sending token");
 
     }
 
