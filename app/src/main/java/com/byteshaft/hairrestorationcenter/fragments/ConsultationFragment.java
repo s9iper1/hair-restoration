@@ -151,29 +151,29 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 }
                 break;
             case R.id.upload_button:
-//                FragmentManager fragmentManager = getFragmentManager();
-//                        FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
-//                        fragmentTransaction.replace(R.id.container,new HealthInformation() , "health");
-//                        fragmentTransaction.addToBackStack(null); //this will add it to back stack
-//                        fragmentTransaction.commit();
-                if (imagesHashMap.size() < 5) {
-                    Toast.makeText(getActivity(), "Please capture all the images", Toast.LENGTH_SHORT).show();
-                } else {
-                    if (!sUploaded) {
-                        if (AppGlobals.sIsInternetAvailable) {
-                            new CheckInternet(false).execute();
-                        } else {
-                            Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
-                                    executeTask(true));
-                        }
-                    } else {
-                        FragmentManager fragmentManager = getFragmentManager();
+                FragmentManager fragmentManager = getFragmentManager();
                         FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
                         fragmentTransaction.replace(R.id.container,new HealthInformation() , "health");
                         fragmentTransaction.addToBackStack(null); //this will add it to back stack
                         fragmentTransaction.commit();
-                    }
-                }
+//                if (imagesHashMap.size() < 5) {
+//                    Toast.makeText(getActivity(), "Please capture all the images", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    if (!sUploaded) {
+//                        if (AppGlobals.sIsInternetAvailable) {
+//                            new CheckInternet(false).execute();
+//                        } else {
+//                            Helpers.alertDialog(getActivity(), "No internet", "Please check your internet connection",
+//                                    executeTask(true));
+//                        }
+//                    } else {
+//                        FragmentManager fragmentManager = getFragmentManager();
+//                        FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
+//                        fragmentTransaction.replace(R.id.container,new HealthInformation() , "health");
+//                        fragmentTransaction.addToBackStack(null); //this will add it to back stack
+//                        fragmentTransaction.commit();
+//                    }
+//                }
         }
     }
 

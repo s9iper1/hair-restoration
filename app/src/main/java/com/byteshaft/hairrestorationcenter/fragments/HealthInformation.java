@@ -326,7 +326,6 @@ public class HealthInformation extends Fragment implements
                                     if (b) {
                                         Log.i("Checkbox", " " + compoundButton.getText().toString());
                                         checkBoxAnswer.add(compoundButton.getText().toString());
-                                        Log.i("TAG", String.valueOf(checkBoxAnswer));
                                         if (checkBoxAnswer.size() > 0) {
                                             try {
                                                 answersList.put(fieldsDetail.get(position)
@@ -343,7 +342,6 @@ public class HealthInformation extends Fragment implements
                                             try {
                                                 answersList.remove(fieldsDetail.get(position)
                                                         .getInt("id"));
-                                                Log.i("TAG", String.valueOf(answersList));
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
@@ -362,7 +360,6 @@ public class HealthInformation extends Fragment implements
                         @Override
                         public void onFocusChange(final View view, boolean b) {
                             if (b) {
-                                Log.e("TAG", "has focus");
                                 handler.postDelayed(new Runnable() {
 
                                     @Override
@@ -370,13 +367,13 @@ public class HealthInformation extends Fragment implements
                                         if (lastFocussedPosition == -1 || lastFocussedPosition == position) {
                                             lastFocussedPosition = position;
                                             view.requestFocus();
+                                            holder.editText.setCursorVisible(true);
                                         }
                                     }
                                 }, 200);
 
                             } else {
                                 lastFocussedPosition = -1;
-                                Log.e("TAG", "No focus");
                                 try {
                                     if (answersList.containsKey(fieldsDetail.get(position).getInt("id"))
                                             && holder.editText.toString().trim().isEmpty()) {
@@ -389,7 +386,6 @@ public class HealthInformation extends Fragment implements
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-
                             }
                         }
                     });
