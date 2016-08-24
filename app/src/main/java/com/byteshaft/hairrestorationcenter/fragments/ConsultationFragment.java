@@ -151,12 +151,11 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                 }
                 break;
             case R.id.upload_button:
-//                MainActivity.loadFragment(new HealthInformation());
 //                FragmentManager fragmentManager = getFragmentManager();
-//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                fragmentTransaction.replace(R.id.container, new HealthInformation());
-//                fragmentTransaction.addToBackStack("Health_info");
-//                fragmentTransaction.commit();
+//                        FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
+//                        fragmentTransaction.replace(R.id.container,new HealthInformation() , "health");
+//                        fragmentTransaction.addToBackStack(null); //this will add it to back stack
+//                        fragmentTransaction.commit();
                 if (imagesHashMap.size() < 5) {
                     Toast.makeText(getActivity(), "Please capture all the images", Toast.LENGTH_SHORT).show();
                 } else {
@@ -168,11 +167,6 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                                     executeTask(true));
                         }
                     } else {
-//                        FragmentManager fragmentManager = getFragmentManager();
-//                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                        fragmentTransaction.replace(R.id.container, new HealthInformation());
-//                        fragmentTransaction.addToBackStack("Health_info");
-//                        fragmentTransaction.commit();
                         FragmentManager fragmentManager = getFragmentManager();
                         FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
                         fragmentTransaction.replace(R.id.container,new HealthInformation() , "health");

@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -68,6 +70,7 @@ public class HealthInformation extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBaseView = inflater.inflate(R.layout.health_information, container, false);
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         fieldData = new ArrayList<>();
         idsArray = new ArrayList<>();
         answersList = new HashMap<>();
@@ -259,6 +262,8 @@ public class HealthInformation extends Fragment implements
 
         private ArrayList<JSONObject> fieldsDetail;
         private ArrayList<String> checkBoxes;
+        private int lastFocussedPosition = -1;
+        private Handler handler = new Handler();
 
         public Adapter(Context context, ArrayList<JSONObject> fieldsDetail, int resource) {
             super(context, resource);
@@ -355,10 +360,23 @@ public class HealthInformation extends Fragment implements
                     holder.editText.setId(fieldsDetail.get(position).getInt("id"));
                     holder.editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                         @Override
-                        public void onFocusChange(View view, boolean b) {
+                        public void onFocusChange(final View view, boolean b) {
                             if (b) {
+                                Log.e("TAG", "has focus");
+                                handler.postDelayed(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        if (lastFocussedPosition == -1 || lastFocussedPosition == position) {
+                                            lastFocussedPosition = position;
+                                            view.requestFocus();
+                                        }
+                                    }
+                                }, 200);
 
                             } else {
+                                lastFocussedPosition = -1;
+                                Log.e("TAG", "No focus");
                                 try {
                                     if (answersList.containsKey(fieldsDetail.get(position).getInt("id"))
                                             && holder.editText.toString().trim().isEmpty()) {
