@@ -166,8 +166,8 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                     } else {
                         FragmentManager fragmentManager = getFragmentManager();
                         FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
-                        fragmentTransaction.replace(R.id.container,new HealthInformation() , "health");
-                        fragmentTransaction.addToBackStack(null); //this will add it to back stack
+                        fragmentTransaction.replace(R.id.container,new HealthInformation(), "health");
+                        fragmentTransaction.addToBackStack("health"); //this will add it to back stack
                         fragmentTransaction.commit();
                     }
                 }
@@ -396,11 +396,10 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
                         if (jsonObject.getString("Message").equals("Successfully")) {
                             JSONObject jsonDetails = jsonObject.getJSONObject("details");
                             AppGlobals.sEntryId = jsonDetails.getInt("entry_id");
-
                             FragmentManager fragmentManager = getFragmentManager();
-                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                            fragmentTransaction.replace(R.id.container, new HealthInformation());
-                            fragmentTransaction.addToBackStack("Health_info");
+                            FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
+                            fragmentTransaction.replace(R.id.container,new HealthInformation(), "health");
+                            fragmentTransaction.addToBackStack("health"); //this will add it to back stack
                             fragmentTransaction.commit();
 
                         }
@@ -414,6 +413,7 @@ public class ConsultationFragment extends Fragment implements View.OnClickListen
 
     @Override
     public void onFileUploadProgress(HttpRequest httpRequest, File file, long l, long l1) {
+//        Log.i("TAG", " size " + uploaded.size() + " boolean " + uploaded.contains(file.getAbsolutePath()));
         if (!uploaded.contains(file.getAbsolutePath())) {
             uploaded.add(file.getAbsolutePath());
             mProgressBar.setProgress(0);

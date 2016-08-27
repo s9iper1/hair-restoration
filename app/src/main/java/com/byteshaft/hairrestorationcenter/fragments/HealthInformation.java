@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -141,6 +142,9 @@ public class HealthInformation extends Fragment implements
                                             AppGlobals.sConsultationSuccess = true;
                                             ConsultationFragment.sUploaded = false;
                                             dialog.dismiss();
+                                            FragmentManager fragmentManager = getFragmentManager();
+                                            //this will clear the back stack and displays no animation on the screen
+                                            fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                             MainActivity.loadFragment(new EducationFragment());
                                         }
                                     });

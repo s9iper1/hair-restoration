@@ -139,23 +139,18 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
 
         if (id == R.id.nav_education) {
-            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             loadFragment(new EducationFragment());
 
         } else if (id == R.id.nav_consultation) {
-            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             loadFragment(new ConsultationFragment());
 
         } else if (id == R.id.nav_messages) {
-            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             loadFragment(new MessagesFragment());
 
         } else if (id == R.id.nav_about_us) {
-            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             loadFragment(new AboutUsFragment());
 
         } else if (id == R.id.nav_location) {
-            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             loadFragment(new LocationFragment());
 
         } else if (id == R.id.nav_contact_us) {
